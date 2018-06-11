@@ -21,15 +21,21 @@ Location: [appear.in/ournetworks](https://appear.in/ournetworks)
 
 ## Set Up Streaming Servers
 
-We will use [Vagrant](https://www.vagrantup.com) to provision streaming servers on
-[Digital Ocean](https://www.digitalocean.com). The following steps assume you have a
-Digital Ocean account and Vagrant installed on your local machine.
+We will be using the following tools and services:
 
-1. Install the `vagrant-digitalocean` plugin:
+* [Digital Ocean](https://www.digitalocean.com) as the virtual machine provider
+* [OBS Studio](https://obsproject.com) locally to stream to our servers
+* [Vagrant](https://www.vagrantup.com) to provision the cloud servers
+* [Yggdrasil](https://github.com/yggdrasil-network/yggdrasil-go) to authenticate the streaming device
 
-        vagrant plugin install vagrant-digitalocean
+The following steps assume you have a Digital Ocean account and the above listed
+software installed on your local machine that you will stream from using OBS Studio.
 
-1. Generate RSA keys to access your server on Digital Ocean:
+1. Install vagrant plugins:
+
+        vagrant plugin install vagrant-digitalocean vagrant-scp
+
+1. Generate RSA keys to access your Digital Ocean VMs:
 
         ssh-keygen -t rsa -f ~/.ssh/ipfs_live_streaming_rsa
 
@@ -41,11 +47,25 @@ Digital Ocean account and Vagrant installed on your local machine.
 
         vagrant up
 
-    From your browser, login to your Digital Ocean dashboard and find your new servers tagged with `ipfs-live-streaming`.
+    From your browser, login to your Digital Ocean dashboard and find your new VMs tagged with `ipfs-live-streaming`.
 
-1. From your local OBS machine, stream to `rtmp://<YOUR_RTMP_SERVER_IP>:1935/live`, where `YOUR_RTMP_SERVER_IP` is the IP address of your rtmp-server Droplet.
+1. Download the yggdrasil configurations for the publishing device:
 
-1. When your streaming session is done, you can destroy the servers with:
+        vagrant scp rtmp-server:/root/publisher.conf ~/
+
+1. Compile yggdrasil at commit `b0acc19` and run it with the downloaded configurations, you may need `sudo`:
+
+        ./yggdrasil --useconf < ~/publisher.conf
+
+1. Leave yggdrasil running in a window for as long as you are streaming. You should see the last line of output like this:
+
+        2018/06/11 03:07:19 Connected: fd00:b280:f90d:5af1:3779:7030:5298:ebaa@159.203.19.222
+
+    The IPv6 is where you will stream to with OBS Studio on your device, and the IPv4 is a publicly viewable stream. For example:
+
+        Publish to: rtmp://[fd00:b280:f90d:5af1:3779:7030:5298:ebaa]:1935/live
+        View from:  rtmp://159.203.19.222:1935/live
+
+1. When your streaming session is done, you can stop yggdrasil and destroy the servers with:
 
         vagrant destroy
-
