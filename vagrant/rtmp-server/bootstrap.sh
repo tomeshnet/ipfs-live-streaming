@@ -95,6 +95,7 @@ export EASY_RSA="${EASY_RSA:-.}"
 "$EASY_RSA/pkitool" --server server #server
 "$EASY_RSA/pkitool" remote #client
 
+#Create server file
 cat <<"EOF"> /etc/openvpn/openvpn.conf
 port 1194
 proto udp
@@ -117,12 +118,17 @@ tun-mtu 1500
 tun-mtu-extra 32
 EOF
 
+#Enable autostart of all configs
 echo AUTOSTART="all" >> /etc/default/openvpn 
+
+#Start daemon
 systemctl daemon-reload
 service openvpn restart
 
+#Grab my ip address
 myip=$( ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}')
-#make a client config 
+
+#Create client config
 cat <<"EOF"> ~/client.conf
 client
 dev tun
@@ -135,6 +141,8 @@ ns-cert-type server
 verb 3
 
 EOF
+
+#Dynamic part of the config
 echo "remote $myip 1194"  >> ~/client.conf
 echo "<ca>" >> ~/client.conf
 cat keys/ca.crt >> ~/client.conf
@@ -147,5 +155,3 @@ echo "</cert>" >> ~/client.conf
 echo "<key>" >> ~/client.conf
 cat keys/remote.key >> ~/client.conf
 echo "</key>" >> ~/client.conf
-
-cd ~
