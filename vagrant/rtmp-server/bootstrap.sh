@@ -78,3 +78,73 @@ sed -i "s/__PUBLISHER_IP_ADDRESS__/`cat ~/publisher.key | grep Address | awk '{p
 
 # Start nginx
 /usr/local/nginx/sbin/nginx
+
+#Install openvpn and generate keys and config file
+apt install -y openvpn
+
+#Build certificates
+cd /usr/share/easy-rsa/
+cp openssl-1.0.0.cnf openssl.cnf 
+. ./vars
+./clean-all
+./build-dh
+
+#Run the rest manually to avoid interactivity
+export EASY_RSA="${EASY_RSA:-.}"
+"$EASY_RSA/pkitool" --initca  #ca
+"$EASY_RSA/pkitool" --server server #server
+"$EASY_RSA/pkitool" remote #client
+
+cat <<"EOF"> /etc/openvpn/openvpn.conf
+port 1194
+proto udp
+dev tun
+daemon
+
+ca "/usr/share/easy-rsa/keys/ca.crt"
+cert "/usr/share/easy-rsa/keys/server.crt"
+key "/usr/share/easy-rsa/keys/server.key" 
+dh "/usr/share/easy-rsa/keys/dh2048.pem"
+server 10.10.10.0 255.255.255.0
+duplicate-cn
+keepalive 10 120
+persist-key
+persist-tun
+max-clients 5
+verb 3
+mssfix 1200
+tun-mtu 1500
+tun-mtu-extra 32
+EOF
+echo AUTOSTART="all" >> /etc/default/openvpn 
+service openvpn restart
+
+
+myip=$( ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}')
+#make a client config 
+cat <<"EOF"> ~/client.conf
+client
+dev tun
+proto udp
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+ns-cert-type server
+verb 3
+
+EOF
+echo "remote $myip 1194"  >> ~/client.conf
+echo "<ca>" >> ~/client.conf
+cat keys/ca.crt >> ~/client.conf
+echo "</ca>" >> ~/client.conf
+
+echo "<cert>" >> ~/client.conf
+cat keys/remote.crt >> ~/client.conf
+echo "</cert>" >> ~/client.conf
+
+echo "<key>" >> ~/client.conf
+cat keys/remote.key >> ~/client.conf
+echo "</key>" >> ~/client.conf
+
+cd ~
