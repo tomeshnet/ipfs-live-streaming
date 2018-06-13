@@ -116,9 +116,10 @@ mssfix 1200
 tun-mtu 1500
 tun-mtu-extra 32
 EOF
-echo AUTOSTART="all" >> /etc/default/openvpn 
-service openvpn restart
 
+echo AUTOSTART="all" >> /etc/default/openvpn 
+systemctl daemon-reload
+service openvpn restart
 
 myip=$( ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}')
 #make a client config 
