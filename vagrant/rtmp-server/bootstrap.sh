@@ -34,68 +34,27 @@ tar -C /usr/local -xzf /tmp/golang/go1.9.2.linux-amd64.tar.gz
 } >> /etc/profile
 . /etc/profile
 
-# Install yggdrasil
-git clone https://github.com/yggdrasil-network/yggdrasil-go.git
-cd yggdrasil-go
-git checkout "${YGGDRASIL_GO_COMMIT}"
-cp /vagrant/rtmp-server/generate_keys.go .
-./build -tags debug
-cp yggdrasil /usr/bin/
-cp yggdrasilctl /usr/bin/
+###########
+# OpenVPN #
+###########
 
-# Configure yggdrasil
-yggdrasil --genconf > /etc/yggdrasil.conf
-sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
-
-# Generate publisher yggdrasil configurations
-./generate_keys > ~/publisher.key
-yggdrasil --genconf > ~/publisher.conf
-sed -i "s/EncryptionPublicKey: .*/`cat ~/publisher.key | grep EncryptionPublicKey`/" ~/publisher.conf
-sed -i "s/EncryptionPrivateKey: .*/`cat ~/publisher.key | grep EncryptionPrivateKey`/" ~/publisher.conf
-sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep 'inet ' | awk '{print $2'}`:12345\"\]|" ~/publisher.conf
-
-# Start yggdrasil service
-cp contrib/systemd/* /etc/systemd/system/
-systemctl enable yggdrasil
-systemctl start yggdrasil
-cd ~
-
-# Download nginx and nginx-rtmp
-wget "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz"
-tar xzf "nginx-${NGINX_VERSION}.tar.gz"
-git clone https://github.com/arut/nginx-rtmp-module.git
-
-# Build nginx with nginx-rtmp
-cd "nginx-${NGINX_VERSION}"
-./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
-make
-make install
-
-# Configure nginx RTMP server
-mkdir /root/hls
-cp -f /vagrant/rtmp-server/nginx.conf /usr/local/nginx/conf/nginx.conf
-sed -i "s/__PUBLISHER_IP_ADDRESS__/`cat ~/publisher.key | grep Address | awk '{print $2}'`/" /usr/local/nginx/conf/nginx.conf
-
-# Start nginx
-/usr/local/nginx/sbin/nginx
-
-#Install openvpn and generate keys and config file
+# Install openvpn and generate keys and config file
 apt install -y openvpn
 
-#Build certificates
+# Build certificates
 cd /usr/share/easy-rsa/
 cp openssl-1.0.0.cnf openssl.cnf 
 . ./vars
 ./clean-all
 ./build-dh
 
-#Run the rest manually to avoid interactivity
+# Run the rest manually to avoid interactivity
 export EASY_RSA="${EASY_RSA:-.}"
-"$EASY_RSA/pkitool" --initca  #ca
+"$EASY_RSA/pkitool" --initca #ca
 "$EASY_RSA/pkitool" --server server #server
 "$EASY_RSA/pkitool" remote #client
 
-#Create server file
+# Create server file
 cat <<"EOF"> /etc/openvpn/openvpn.conf
 port 1194
 proto udp
@@ -118,17 +77,17 @@ tun-mtu 1500
 tun-mtu-extra 32
 EOF
 
-#Enable autostart of all configs
+# Enable autostart of all configs
 echo AUTOSTART="all" >> /etc/default/openvpn 
 
-#Start daemon
+# Start daemon
 systemctl daemon-reload
 service openvpn restart
 
-#Grab my ip address
-myip=$( ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}')
+# Grab my IP address
+myip=$(ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}')
 
-#Create client config
+# Create client config
 cat <<"EOF"> ~/client.conf
 client
 dev tun
@@ -142,7 +101,7 @@ verb 3
 
 EOF
 
-#Dynamic part of the config
+# Dynamic part of the config
 echo "remote $myip 1194"  >> ~/client.conf
 echo "<ca>" >> ~/client.conf
 cat keys/ca.crt >> ~/client.conf
@@ -155,3 +114,56 @@ echo "</cert>" >> ~/client.conf
 echo "<key>" >> ~/client.conf
 cat keys/remote.key >> ~/client.conf
 echo "</key>" >> ~/client.conf
+
+#############
+# Yggdrasil #
+#############
+
+# Install yggdrasil
+git clone https://github.com/yggdrasil-network/yggdrasil-go.git
+cd yggdrasil-go
+git checkout "${YGGDRASIL_GO_COMMIT}"
+cp /vagrant/rtmp-server/generate_keys.go .
+./build -tags debug
+cp yggdrasil /usr/bin/
+cp yggdrasilctl /usr/bin/
+
+# Configure yggdrasil
+yggdrasil --genconf > /etc/yggdrasil.conf
+sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
+
+# Generate publisher yggdrasil configurations
+./generate_keys > ~/publisher.key
+yggdrasil --genconf > ~/publisher.conf
+sed -i "s/EncryptionPublicKey: .*/`cat ~/publisher.key | grep EncryptionPublicKey`/" ~/publisher.conf
+sed -i "s/EncryptionPrivateKey: .*/`cat ~/publisher.key | grep EncryptionPrivateKey`/" ~/publisher.conf
+sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2'}`:12345\"\]|" ~/publisher.conf
+
+# Start yggdrasil service
+cp contrib/systemd/* /etc/systemd/system/
+systemctl enable yggdrasil
+systemctl start yggdrasil
+cd ~
+
+#######################
+# nginx + RTMP module #
+#######################
+
+# Download nginx and nginx-rtmp
+wget "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz"
+tar xzf "nginx-${NGINX_VERSION}.tar.gz"
+git clone https://github.com/arut/nginx-rtmp-module.git
+
+# Build nginx with nginx-rtmp
+cd "nginx-${NGINX_VERSION}"
+./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
+make
+make install
+
+# Configure nginx RTMP server
+mkdir /root/hls
+cp -f /vagrant/rtmp-server/nginx.conf /usr/local/nginx/conf/nginx.conf
+sed -i "s/__PUBLISHER_IP_ADDRESS__/`cat ~/publisher.key | grep Address | awk '{print $2}'`/" /usr/local/nginx/conf/nginx.conf
+
+# Start nginx
+/usr/local/nginx/sbin/nginx
