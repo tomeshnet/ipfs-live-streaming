@@ -1,0 +1,25 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  # RTMP server on Digital Ocean TOR1
+  config.vm.define "rtmp-server" do |config|
+      raise RuntimeError, "Set the DO_ACCESS_TOKEN environment variable" unless ENV["DO_ACCESS_TOKEN"]
+      config.vm.provider :digital_ocean do |provider, override|
+        override.ssh.private_key_path = "~/.ssh/ipfs_live_streaming_rsa"
+        override.vm.box = "digital_ocean"
+        override.vm.box_url = "https://github.com/devopsgroup-io/vagrant-digitalocean/raw/master/box/digital_ocean.box"
+        override.nfs.functional = false
+        provider.token = ENV["DO_ACCESS_TOKEN"]
+        provider.image = "debian-9-x64"
+        provider.region = "tor1"
+        provider.size = "1gb"
+        provider.tags = ["ipfs-live-streaming"]
+        provider.ipv6 = true
+        provider.monitoring = true
+      end
+      config.vm.provision :shell, path: "rtmp-server/bootstrap.sh"
+  end
+
+end
