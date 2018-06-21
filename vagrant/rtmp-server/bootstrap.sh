@@ -2,7 +2,7 @@
 
 set -e
 
-YGGDRASIL_GO_COMMIT=b0acc19
+YGGDRASIL_GO_VERSION=0.2
 NGINX_VERSION=1.15.0
 
 # Prevent apt-daily from holding up /var/lib/dpkg/lock on boot
@@ -122,7 +122,7 @@ echo "</key>" >> ~/client.conf
 # Install yggdrasil
 git clone https://github.com/yggdrasil-network/yggdrasil-go.git
 cd yggdrasil-go
-git checkout "${YGGDRASIL_GO_COMMIT}"
+git checkout "v${YGGDRASIL_GO_VERSION}"
 cp /vagrant/rtmp-server/generate_keys.go .
 ./build -tags debug
 cp yggdrasil /usr/bin/
@@ -141,6 +141,7 @@ sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet
 
 # Start yggdrasil service
 cp contrib/systemd/* /etc/systemd/system/
+systemctl daemon-reload
 systemctl enable yggdrasil
 systemctl start yggdrasil
 cd ~
