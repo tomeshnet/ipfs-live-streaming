@@ -16,6 +16,7 @@ Vagrant.configure("2") do |config|
         provider.region = "tor1"
         provider.size = "1gb"
         provider.tags = ["ipfs-live-streaming"]
+        provider.private_networking = true
         provider.ipv6 = true
         provider.monitoring = true
       end
@@ -35,6 +36,7 @@ Vagrant.configure("2") do |config|
         provider.region = "tor1"
         provider.size = "1gb"
         provider.tags = ["ipfs-live-streaming"]
+        provider.private_networking = true
         provider.ipv6 = true
         provider.monitoring = true
       end
