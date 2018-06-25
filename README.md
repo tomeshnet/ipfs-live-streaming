@@ -11,11 +11,11 @@ than 100 people.
 
 ## Planning Calls
 
-| Date    | Time             |
-|:--------|:-----------------|
-| June 11 | 7:00 - 8:00 p.m. |
-| June 25 | 7:00 - 8:00 p.m. |
-| July 9  | 7:00 - 8:00 p.m. |
+| Date    | Time              |
+|:--------|:------------------|
+| June 11 | 7:00  -  8:00 p.m.|
+| June 25 | 10:00 - 11:00 p.m.|
+| July 9  | 7:00  -  8:00 p.m.|
 
 Location: [appear.in/ournetworks](https://appear.in/ournetworks)
 
