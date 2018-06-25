@@ -19,9 +19,9 @@ than 100 people.
 
 Location: [appear.in/ournetworks](https://appear.in/ournetworks)
 
-We will record live streams in 720p (3 Mbps) and archive mp4 of each talk in 1080p.
-
 ## Set Up
+
+We will record live streams in 720p (3 Mbps) and archive mp4 of each talk in 1080p.
 
 ### Equipment List
 
@@ -119,7 +119,7 @@ what the embedded player on the website will use. However, viewers running a IPF
 one or more `ipfs-mirror` servers that pin the live streaming content and run additional
 gateways.
 
-All the servers described above are provisioned using Vagrant on Digital Ocean. In addition,
+All the servers described above are provisioned using Terraform on Digital Ocean. In addition,
 the RTMP stream can be consumed by other services to provide a parallel stream that does not
 involve IPFS.
 
@@ -128,28 +128,38 @@ involve IPFS.
 We will be using the following tools and services:
 
 * [Digital Ocean](https://www.digitalocean.com) as the virtual machine provider
-* [Vagrant](https://www.vagrantup.com) to provision the cloud servers
+* [Terraform](https://www.terraform.io) to provision the cloud servers
 
 The following steps assume you have a Digital Ocean account and the above listed software
 installed on your local machine, which can be the same device running OBS Studio.
 
-1. Install vagrant plugins:
+1. Clone this repository and work from the `terraform` directory:
 
-        vagrant plugin install vagrant-digitalocean vagrant-scp
+        git clone https://github.com/tomeshnet/ipfs-live-streaming.git
+        cd ipfs-live-streaming/terraform
+
+1. Obtain a read-write access token from your Digital Ocean account and store it in your local
+    environment:
+
+        echo YOUR_DIGITAL_OCEAN_ACCESS_TOKEN > .keys/do_token
 
 1. Generate RSA keys to access your Digital Ocean VMs:
 
-        ssh-keygen -t rsa -f ~/.ssh/ipfs_live_streaming_rsa
+        ssh-keygen -t rsa -f .keys/id_rsa
 
-1. Obtain a read-write access token from your Digital Ocean account and export it in
-    your local environment:
+    Add the SSH key to your Digital Ocean account, then copy the SSH fingerprint to local
+    environment:
 
-        export DO_ACCESS_TOKEN=<YOUR_DIGITAL_OCEAN_ACCESS_TOKEN>
+        echo YOUR_SSH_FINGERPRINT > .key/ssh_fingerprint
 
-1. Clone this repository and from the `vagrant` directory, provision the streaming servers
-    by running:
+1. [Install Terraform](https://www.terraform.io/intro/getting-started/install.html) for your
+    platform then initialize it:
 
-        vagrant up
+        terraform init
+
+1. Provision the streaming servers by running:
+
+        terraform apply
 
     From your browser, login to your Digital Ocean dashboard and find your new VMs tagged
     with `ipfs-live-streaming`.
@@ -175,4 +185,4 @@ installed on your local machine, which can be the same device running OBS Studio
 
 1. When your streaming session is done, you can stop yggdrasil and destroy the servers with:
 
-        vagrant destroy
+        terraform destroy

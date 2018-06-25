@@ -5,6 +5,11 @@ set -e
 YGGDRASIL_GO_VERSION=0.2
 NGINX_VERSION=1.15.0
 
+# Wait for cloud-init to complete
+until [[ -f /var/lib/cloud/instance/boot-finished ]]; do
+  sleep 1
+done
+
 # Prevent apt-daily from holding up /var/lib/dpkg/lock on boot
 systemctl disable apt-daily.service
 systemctl disable apt-daily.timer
@@ -13,6 +18,7 @@ systemctl disable apt-daily.timer
 curl -sSL https://agent.digitalocean.com/install.sh | sh
 
 # Install standard tools
+apt update
 apt install -y \
   build-essential \
   git \
@@ -123,7 +129,7 @@ echo "</key>" >> ~/client.conf
 git clone https://github.com/yggdrasil-network/yggdrasil-go.git
 cd yggdrasil-go
 git checkout "v${YGGDRASIL_GO_VERSION}"
-cp /vagrant/rtmp-server/generate_keys.go .
+cp /tmp/rtmp-server/generate_keys.go .
 ./build -tags debug
 cp yggdrasil /usr/bin/
 cp yggdrasilctl /usr/bin/
@@ -163,7 +169,7 @@ make install
 
 # Configure nginx RTMP server
 mkdir /root/hls
-cp -f /vagrant/rtmp-server/nginx.conf /usr/local/nginx/conf/nginx.conf
+cp -f /tmp/rtmp-server/nginx.conf /usr/local/nginx/conf/nginx.conf
 sed -i "s/__PUBLISHER_IP_ADDRESS__/`cat ~/publisher.key | grep Address | awk '{print $2}'`/" /usr/local/nginx/conf/nginx.conf
 
 # Start nginx
