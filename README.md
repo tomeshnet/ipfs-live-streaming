@@ -150,10 +150,10 @@ installed on your local machine, which can be the same device running OBS Studio
     Add the SSH key to your Digital Ocean account, then copy the SSH fingerprint to local
     environment:
 
-        echo YOUR_SSH_FINGERPRINT > .key/ssh_fingerprint
+        echo YOUR_SSH_FINGERPRINT > .keys/ssh_fingerprint
 
-1. [Install Terraform](https://www.terraform.io/intro/getting-started/install.html) for your
-    platform then initialize it:
+1. [Install Terraform](https://www.terraform.io/intro/getting-started/install.html), add it to
+    your path, then run initialization from our working directory:
 
         terraform init
 
