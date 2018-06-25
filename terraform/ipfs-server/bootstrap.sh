@@ -2,6 +2,9 @@
 
 set -e
 
+DOMAIN_NAME=$1
+RTMP_SERVER_PRIVATE_IP=$2
+
 IPFS_VERSION=0.4.15
 
 # Wait for cloud-init to complete
@@ -50,4 +53,4 @@ cp -f /tmp/ipfs-server/process-stream.sh ~/process-stream.sh
 mkdir ~/live
 
 # Start video stream processing in background
-screen -dmS process-stream ../process-stream.sh
+screen -dmS process-stream ./process-stream.sh $DOMAIN_NAME $RTMP_SERVER_PRIVATE_IP

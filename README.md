@@ -72,11 +72,12 @@ take a 3.5 mm audio input so we can mix the audio into the stream via the audio 
 The laptop runs the following software:
 
 * [OBS Studio](https://obsproject.com) locally to stream to our servers
-* [Yggdrasil](https://github.com/yggdrasil-network/yggdrasil-go) to authenticate the
+* [OpenVPN](https://openvpn.net) or
+  [Yggdrasil](https://github.com/yggdrasil-network/yggdrasil-go) to authenticate the
   streaming device
 
-You should compile yggdrasil at commit `b0acc19`, and when streaming, run it with the
-configurations that we will download from the streaming server at a later step.
+For Yggdrasil, you should compile at tag `v0.2`, and when streaming, run it with the
+configurations that will be downloaded from the streaming server at a later step.
 
 OBS Studio is used throughout the conference to toggle between the two video feeds (i.e. 
 the slides and the presenter video). Using the `Start Streaming` function in OBS Studio,
@@ -96,13 +97,14 @@ a separate 1080p mp4 file to the external hard disk to be published after the ev
 +-------------------+                +---------------------+           +---------------------+
 | rtmp-server       |                | ipfs-server         |           | ipfs-mirror         |
 | ↳ nginx-rtmp      |                | ↳ ipfs with pubsub  |           | ↳ ipfs with pubsub  |
-| ↳ yggdrasil       |<--(rtmp-pull)--| ↳ ipfs-http gateway |<--(ipfs)--| ↳ ipfs-http gateway |
-|- - - - - - - - - -|                | ↳ ffmpeg            |           |- - - - - - - - - - -|
-| Runs RTMP server  |                |- - - - - - - - - - -|           | Pins IPFS hashes    |
-| publishable from  |                | Encodes HLS ts+m3u8 |           | learnt from IPNS id |
-| yggdrasil IP      |                | pins on IPFS and    |           | of ipfs-server      |
-+-------------------+                | publishes to IPNS   |           +---------------------+
-          |                          +---------------------+
+| ↳ openvpn         |<--(rtmp-pull)--| ↳ ipfs-http gateway |<--(ipfs)--| ↳ ipfs-http gateway |
+| ↳ yggdrasil       |                | ↳ ffmpeg            |           |- - - - - - - - - - -|
+|- - - - - - - - - -|                |- - - - - - - - - - -|           | Pins IPFS hashes    |
+| Runs RTMP server  |                | Encodes HLS ts+m3u8 |           | learnt from IPNS id |
+| publishable from  |                | pins on IPFS and    |           | of ipfs-server      |
+| authenticated IPs |                | publishes to IPNS   |           +---------------------+
++-------------------+                +---------------------+
+          |
    (rtmp-pull/push)
           |
           v
@@ -110,8 +112,8 @@ Other Streaming Services
 ```
 
 The on-premise laptop running OBS Studio pushes to the `rtmp-server`, which through
-IP-pinning of the yggdrasil-generated IP address will allow only that device to publish.
-The `ipfs-server` pulls that RTMP stream, encodes ts chunks in a live m3u8 file using
+IP-pinning of the OpenVPN or Yggdrasil-generated IP address will allow only that device to
+publish. The `ipfs-server` pulls that RTMP stream, encodes ts chunks in a live m3u8 file using
 ffmpeg, then IPFS adds and pins those files and uses IPNS to publish the m3u8 to its node
 ID. The built-in ipfs-http gateway allow those content to be accessed via HTTP, which is
 what the embedded player on the website will use. However, viewers running a IPFS client
@@ -138,10 +140,20 @@ installed on your local machine, which can be the same device running OBS Studio
         git clone https://github.com/tomeshnet/ipfs-live-streaming.git
         cd ipfs-live-streaming/terraform
 
+1. From your domain name registerar, point name servers to Digital Ocean's name servers:
+
+        ns1.digitalocean.com
+        ns2.digitalocean.com
+        ns3.digitalocean.com
+
+    Then store the domain name in your local environment:
+
+        echo -n YOUR_DOMAIN_NAME > .keys/domain_name
+
 1. Obtain a read-write access token from your Digital Ocean account and store it in your local
     environment:
 
-        echo YOUR_DIGITAL_OCEAN_ACCESS_TOKEN > .keys/do_token
+        echo -n YOUR_DIGITAL_OCEAN_ACCESS_TOKEN > .keys/do_token
 
 1. Generate RSA keys to access your Digital Ocean VMs:
 
@@ -150,10 +162,10 @@ installed on your local machine, which can be the same device running OBS Studio
     Add the SSH key to your Digital Ocean account, then copy the SSH fingerprint to local
     environment:
 
-        echo YOUR_SSH_FINGERPRINT > .keys/ssh_fingerprint
+        echo -n YOUR_SSH_FINGERPRINT > .keys/ssh_fingerprint
 
 1. [Install Terraform](https://www.terraform.io/intro/getting-started/install.html), add it to
-    your path, then run initialization from our working directory:
+    your path, then run initialization from our `terraform` working directory:
 
         terraform init
 
@@ -164,25 +176,29 @@ installed on your local machine, which can be the same device running OBS Studio
     From your browser, login to your Digital Ocean dashboard and find your new VMs tagged
     with `ipfs-live-streaming`.
 
-1. Download the yggdrasil configurations for the publishing device:
+1. You will find a couple new files in your `.keys` folder:
 
-        vagrant scp rtmp-server:/root/publisher.conf ~/
+        client.conf    (for OpenVPN on Linux)
+        client.opvn    (for OpenVPN on MacOS and Windows)
+        yggdrasil.conf (for Yggdrasil)
 
-1. Run yggdrasil with the downloaded configurations, you may need `sudo`:
+    To authenticate using OpenVPN, connect with your OpenVPN client using `client.conf` or
+    `client.opvn`, then publish your OBS Studio stream to:
 
-        ./yggdrasil --useconf < ~/publisher.conf
+        rtmp://10.10.10.1:1935/live
 
-1. Leave yggdrasil running in a window for as long as you are streaming. You should see the
-    last line of output like this:
+    To authenticate using Yggdrasil, start it with `yggdrasil.conf` and note the last line of
+    output like this:
 
+        sudo yggdrasil --useconf < ./keys/yggdrasil.conf
+        ...
         2018/06/11 03:07:19 Connected: fd00:b280:f90d:5af1:3779:7030:5298:ebaa@159.203.19.222
 
-    The IPv6 is where you will stream to with OBS Studio on your device, and the IPv4 is a
-    publicly viewable stream. For example:
+    Then publish your OBS Studio stream to the IPv6:
 
-        Publish to: rtmp://[fd00:b280:f90d:5af1:3779:7030:5298:ebaa]:1935/live
-        View from:  rtmp://159.203.19.222:1935/live
+        rtmp://[fd00:b280:f90d:5af1:3779:7030:5298:ebaa]:1935/live
 
-1. When your streaming session is done, you can stop yggdrasil and destroy the servers with:
+1. When your streaming session is done, you can stop OpenVPN or Yggdrasil and destroy the
+    servers with:
 
         terraform destroy

@@ -1,3 +1,6 @@
+variable "domain_name" {
+  default = ".keys/domain_name"
+}
 variable "do_token" {
   default = ".keys/do_token"
 }

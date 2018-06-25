@@ -40,6 +40,9 @@ tar -C /usr/local -xzf /tmp/golang/go1.9.2.linux-amd64.tar.gz
 } >> /etc/profile
 . /etc/profile
 
+# Create directory for generating client keys
+mkdir /root/client-keys
+
 ###########
 # OpenVPN #
 ###########
@@ -94,7 +97,7 @@ service openvpn restart
 myip=$(ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}')
 
 # Create client config
-cat <<"EOF"> ~/client.conf
+cat <<"EOF"> ~/client-keys/client.conf
 client
 dev tun
 proto udp
@@ -108,18 +111,21 @@ verb 3
 EOF
 
 # Dynamic part of the config
-echo "remote $myip 1194"  >> ~/client.conf
-echo "<ca>" >> ~/client.conf
-cat keys/ca.crt >> ~/client.conf
-echo "</ca>" >> ~/client.conf
+echo "remote $myip 1194"  >> ~/client-keys/client.conf
+echo "<ca>" >> ~/client-keys/client.conf
+cat keys/ca.crt >> ~/client-keys/client.conf
+echo "</ca>" >> ~/client-keys/client.conf
 
-echo "<cert>" >> ~/client.conf
-cat keys/remote.crt >> ~/client.conf
-echo "</cert>" >> ~/client.conf
+echo "<cert>" >> ~/client-keys/client.conf
+cat keys/remote.crt >> ~/client-keys/client.conf
+echo "</cert>" >> ~/client-keys/client.conf
 
-echo "<key>" >> ~/client.conf
-cat keys/remote.key >> ~/client.conf
-echo "</key>" >> ~/client.conf
+echo "<key>" >> ~/client-keys/client.conf
+cat keys/remote.key >> ~/client-keys/client.conf
+echo "</key>" >> ~/client-keys/client.conf
+
+# Copy config for Windows
+cp ~/client-keys/client.conf ~/client-keys/client.opvn
 
 #############
 # Yggdrasil #
@@ -140,10 +146,10 @@ sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
 
 # Generate publisher yggdrasil configurations
 ./generate_keys > ~/publisher.key
-yggdrasil --genconf > ~/publisher.conf
-sed -i "s/EncryptionPublicKey: .*/`cat ~/publisher.key | grep EncryptionPublicKey`/" ~/publisher.conf
-sed -i "s/EncryptionPrivateKey: .*/`cat ~/publisher.key | grep EncryptionPrivateKey`/" ~/publisher.conf
-sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2'}`:12345\"\]|" ~/publisher.conf
+yggdrasil --genconf > ~/client-keys/yggdrasil.conf
+sed -i "s/EncryptionPublicKey: .*/`cat ~/publisher.key | grep EncryptionPublicKey`/" ~/client-keys/yggdrasil.conf
+sed -i "s/EncryptionPrivateKey: .*/`cat ~/publisher.key | grep EncryptionPrivateKey`/" ~/client-keys/yggdrasil.conf
+sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2'}`:12345\"\]|" ~/client-keys/yggdrasil.conf
 
 # Start yggdrasil service
 cp contrib/systemd/* /etc/systemd/system/

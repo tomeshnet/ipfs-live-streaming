@@ -1,7 +1,10 @@
 #!/bin/sh
 
-RTMP_STREAM=rtmp://pit.stream.aseriesoftubez.com/demo/demo
-IPFS_GATEWAY=https://ipfs.io
+DOMAIN_NAME=$1
+RTMP_SERVER_PRIVATE_IP=$2
+
+RTMP_STREAM=rtmp://$RTMP_SERVER_PRIVATE_IP/live
+IPFS_GATEWAY=http://$DOMAIN_NAME:8080
 
 cd ~/live
 
