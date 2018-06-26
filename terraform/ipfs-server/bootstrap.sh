@@ -23,7 +23,11 @@ curl -sSL https://agent.digitalocean.com/install.sh | sh
 apt update
 apt install -y \
   ffmpeg \
-  inotify-tools
+  inotify-tools \
+  jq
+
+# Create directory for generating client keys
+mkdir /root/client-keys
 
 ########
 # IPFS #
@@ -43,6 +47,12 @@ cp -f /tmp/ipfs-server/ipfs.service /etc/systemd/system/ipfs.service
 systemctl daemon-reload
 systemctl enable ipfs
 systemctl start ipfs
+
+# Write IPFS identity to client file
+until [[ `ipfs id >/dev/null 2>&1; echo $?` -eq 0 ]]; do
+  sleep 1
+done
+echo -n `ipfs id | jq .ID | sed 's/"//g'` > ~/client-keys/ipfs_id
 
 ########################
 # Process video stream #

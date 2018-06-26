@@ -158,6 +158,12 @@ systemctl enable yggdrasil
 systemctl start yggdrasil
 cd ~
 
+# Write server yggdrasil IP address to client file
+until [[ `ifconfig tun1 >/dev/null 2>&1; echo $?` -eq 0 ]]; do
+  sleep 1
+done
+echo -n `ifconfig tun1 | grep 'inet6 fd' | awk '{print $2'}` > ~/client-keys/rtmp_yggdrasil
+
 #######################
 # nginx + RTMP module #
 #######################

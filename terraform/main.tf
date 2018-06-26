@@ -61,6 +61,20 @@ resource "digitalocean_record" "rtmp-server-v6" {
   value  = "${digitalocean_droplet.rtmp-server.ipv6_address}"
 }
 
+# DNS records for authenticated RTMP publishing
+resource "digitalocean_record" "publish-openvpn" {
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "A"
+  name   = "openvpn.publish"
+  value  = "10.10.10.1"
+}
+resource "digitalocean_record" "publish-yggdrasil" {
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "AAAA"
+  name   = "yggdrasil.publish"
+  value  = "${file(".keys/rtmp_yggdrasil")}"
+}
+
 # IPFS server Droplet
 resource "digitalocean_droplet" "ipfs-server" {
   depends_on         = ["digitalocean_droplet.rtmp-server"]
@@ -90,6 +104,9 @@ resource "digitalocean_droplet" "ipfs-server" {
       "/tmp/ipfs-server/bootstrap.sh ${file(var.domain_name)} ${digitalocean_droplet.rtmp-server.ipv4_address_private}",
     ]
   }
+  provisioner "local-exec" {
+    command          = "scp -B -o 'StrictHostKeyChecking no' -i ${var.pub_key} root@${digitalocean_droplet.ipfs-server.ipv4_address}:/root/client-keys/* .keys/"
+  }
 }
 
 # DNS records for IPFS server
@@ -116,20 +133,22 @@ resource "digitalocean_record" "ipfs-server-v6" {
 output "digital_ocean_droplets" {
   depends_on = ["digitalocean_record.*"]
   value      = [
-    "${digitalocean_droplet.rtmp-server.name} @ ${digitalocean_droplet.rtmp-server.ipv4_address}: ${digitalocean_droplet.rtmp-server.status}",
-    "${digitalocean_droplet.ipfs-server.name} @ ${digitalocean_droplet.ipfs-server.ipv4_address}: ${digitalocean_droplet.ipfs-server.status}",
+    "${digitalocean_droplet.rtmp-server.name}: ${digitalocean_droplet.rtmp-server.status}",
+    "${digitalocean_droplet.ipfs-server.name}: ${digitalocean_droplet.ipfs-server.status}",
   ]
 }
 output "dns_records" {
   depends_on = ["output.digital_ocean_droplets"]
   value      = [
-    "${digitalocean_domain.ipfs-live-streaming.name}: ${digitalocean_domain.ipfs-live-streaming.ip_address}",
-    "${digitalocean_record.rtmp-server.fqdn}: ${digitalocean_record.rtmp-server.value}",
+    "                    ${digitalocean_domain.ipfs-live-streaming.name}: ${digitalocean_domain.ipfs-live-streaming.ip_address}",
+    "        ${digitalocean_record.rtmp-server.fqdn}: ${digitalocean_record.rtmp-server.value}",
+    "        ${digitalocean_record.ipfs-server.fqdn}: ${digitalocean_record.ipfs-server.value}",
     "${digitalocean_record.rtmp-server-private.fqdn}: ${digitalocean_record.rtmp-server-private.value}",
-    "${digitalocean_record.rtmp-server-v6.fqdn}: ${digitalocean_record.rtmp-server-v6.value}",
-    "${digitalocean_record.ipfs-server.fqdn}: ${digitalocean_record.ipfs-server.value}",
     "${digitalocean_record.ipfs-server-private.fqdn}: ${digitalocean_record.ipfs-server-private.value}",
-    "${digitalocean_record.ipfs-server-v6.fqdn}: ${digitalocean_record.ipfs-server-v6.value}",
+    "     ${digitalocean_record.rtmp-server-v6.fqdn}: ${digitalocean_record.rtmp-server-v6.value}",
+    "     ${digitalocean_record.ipfs-server-v6.fqdn}: ${digitalocean_record.ipfs-server-v6.value}",
+    "    ${digitalocean_record.publish-openvpn.fqdn}: ${digitalocean_record.publish-openvpn.value}",
+    "  ${digitalocean_record.publish-yggdrasil.fqdn}: ${digitalocean_record.publish-yggdrasil.value}",
   ]
 }
 output "ssh_access" {
@@ -142,14 +161,14 @@ output "ssh_access" {
 output "private_urls" {
   depends_on = ["output.ssh_access"]
   value      = [
-    "RTMP publish (.keys/openvpn.conf):   rtmp://10.10.10.1:1935/live",
-    "RTMP publish (.keys/yggdrasil.conf): rtmp://[TODO_YGGDRASIL_IPV6]:1935/live",
+    "RTMP publish (.keys/client.conf):    rtmp://10.10.10.1:1935/live",
+    "RTMP publish (.keys/yggdrasil.conf): rtmp://[${file(".keys/rtmp_yggdrasil")}]:1935/live",
   ]
 }
 output "public_urls" {
   depends_on = ["output.private_urls"]
   value      = [
     "RTMP stream: rtmp://${digitalocean_record.rtmp-server.fqdn}/live",
-    "HLS stream:  http://${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/TODO_IPFS_ID",
+    "HLS stream:  http://${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
   ]
 }
