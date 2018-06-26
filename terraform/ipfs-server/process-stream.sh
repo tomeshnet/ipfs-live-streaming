@@ -8,11 +8,14 @@ IPFS_GATEWAY=http://$DOMAIN_NAME:8080
 
 cd ~/live
 
-what='LIVE'
-rm -rf $what*.ts
-rm -rf $what.m3u8
+what=`date +Y%m%d%H%M`
+what="LIVE-$what"
 
-screen -dmS ffmpeg ffmpeg -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 30 -hls_list_size 0 -f hls $what.m3u8
+if [ -z "$(screen -list | grep ffmpeg)" ]; then
+    rm -rf LIVE-*.ts
+    rm -rf LIVE-.m3u8
+    screen -dmS ffmpeg ffmpeg -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 15 -hls_list_size 0 -f hls $what.m3u8
+fi
 
 while true; do
   nextfile=$(ls $what*.ts 2>/dev/null | tail -n 1)
@@ -46,6 +49,6 @@ while true; do
 
     # IPNS publish
     m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
-    ipfs name publish --timeout=1s $m3u8hash &
+    ipfs name publish --timeout=5s $m3u8hash &
   fi
 done
