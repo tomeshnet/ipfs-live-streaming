@@ -36,9 +36,9 @@ while true; do
     # Update the log with the future name (hash already there)
     sed -i "s#$nextfile#$nextfile $time.ts $timecode#" log
 
-    # Move next file
-    mv $nextfile $time.ts
-
+    # remove next file
+    rm -f $nextfile
+    
     # Rewrite the m3u8 file with the new ipfs hashes from the log
     cp $what.m3u8 current.m3u8
     while read p; do
