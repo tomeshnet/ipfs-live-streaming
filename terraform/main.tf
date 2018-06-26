@@ -37,7 +37,7 @@ resource "digitalocean_droplet" "rtmp-server" {
     ]
   }
   provisioner "local-exec" {
-    command          = "scp -B -o 'StrictHostKeyChecking no' -i ${var.pub_key} root@${digitalocean_droplet.rtmp-server.ipv4_address}:/root/client-keys/* .keys/"
+    command          = "scp -B -o 'StrictHostKeyChecking no' -i ${var.pvt_key} root@${digitalocean_droplet.rtmp-server.ipv4_address}:/root/client-keys/* .keys/"
   }
 }
 
@@ -105,7 +105,7 @@ resource "digitalocean_droplet" "ipfs-server" {
     ]
   }
   provisioner "local-exec" {
-    command          = "scp -B -o 'StrictHostKeyChecking no' -i ${var.pub_key} root@${digitalocean_droplet.ipfs-server.ipv4_address}:/root/client-keys/* .keys/"
+    command          = "scp -B -o 'StrictHostKeyChecking no' -i ${var.pvt_key} root@${digitalocean_droplet.ipfs-server.ipv4_address}:/root/client-keys/* .keys/"
   }
 }
 
@@ -138,7 +138,7 @@ output "digital_ocean_droplets" {
   ]
 }
 output "dns_records" {
-  depends_on = ["output.digital_ocean_droplets"]
+  depends_on = ["digitalocean_record.*"]
   value      = [
     "                    ${digitalocean_domain.ipfs-live-streaming.name}: ${digitalocean_domain.ipfs-live-streaming.ip_address}",
     "        ${digitalocean_record.rtmp-server.fqdn}: ${digitalocean_record.rtmp-server.value}",
@@ -152,21 +152,21 @@ output "dns_records" {
   ]
 }
 output "ssh_access" {
-  depends_on = ["output.dns_records"]
+  depends_on = ["digitalocean_record.*"]
   value      = [
     "rtmp-server: ssh -i .keys/id_rsa root@${digitalocean_record.rtmp-server.fqdn}",
     "ipfs-server: ssh -i .keys/id_rsa root@${digitalocean_record.ipfs-server.fqdn}",
   ]
 }
 output "private_urls" {
-  depends_on = ["output.ssh_access"]
+  depends_on = ["digitalocean_record.*"]
   value      = [
     "RTMP publish (.keys/client.conf):    rtmp://10.10.10.1:1935/live",
     "RTMP publish (.keys/yggdrasil.conf): rtmp://[${file(".keys/rtmp_yggdrasil")}]:1935/live",
   ]
 }
 output "public_urls" {
-  depends_on = ["output.private_urls"]
+  depends_on = ["digitalocean_record.*"]
   value      = [
     "RTMP stream: rtmp://${digitalocean_record.rtmp-server.fqdn}/live",
     "HLS stream:  http://${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",

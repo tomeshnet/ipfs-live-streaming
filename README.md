@@ -140,7 +140,7 @@ installed on your local machine, which can be the same device running OBS Studio
         git clone https://github.com/tomeshnet/ipfs-live-streaming.git
         cd ipfs-live-streaming/terraform
 
-1. From your domain name registerar, point name servers to Digital Ocean's name servers:
+1. From your domain name registrar, point name servers to Digital Ocean's name servers:
 
         ns1.digitalocean.com
         ns2.digitalocean.com
@@ -150,8 +150,8 @@ installed on your local machine, which can be the same device running OBS Studio
 
         echo -n YOUR_DOMAIN_NAME > .keys/domain_name
 
-1. Obtain a read-write access token from your Digital Ocean account and store it in your local
-    environment:
+1. Obtain a read-write access token from your Digital Ocean account's `API` tab, then store
+    it in your local environment:
 
         echo -n YOUR_DIGITAL_OCEAN_ACCESS_TOKEN > .keys/do_token
 
@@ -159,13 +159,19 @@ installed on your local machine, which can be the same device running OBS Studio
 
         ssh-keygen -t rsa -f .keys/id_rsa
 
-    Add the SSH key to your Digital Ocean account, then copy the SSH fingerprint to local
-    environment:
+    Add the SSH key to your Digital Ocean account under `Settings > Security`, then copy the
+    SSH fingerprint to your local environment:
 
         echo -n YOUR_SSH_FINGERPRINT > .keys/ssh_fingerprint
 
-1. [Install Terraform](https://www.terraform.io/intro/getting-started/install.html), add it to
-    your path, then run initialization from our `terraform` working directory:
+1. [Download Terraform](https://www.terraform.io/intro/getting-started/install.html), add it to
+    your path. On Linux it would look something like this:
+
+        https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_amd64.zip
+        unzip terraform_0.11.7_linux_amd64.zip
+        mv terraform /usr/bin
+
+    Then run initialization from our `terraform` working directory:
 
         terraform init
 
