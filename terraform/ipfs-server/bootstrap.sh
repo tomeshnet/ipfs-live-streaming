@@ -73,3 +73,19 @@ cp -f /tmp/ipfs-server/hls.service /etc/systemd/system/hls.service
 systemctl daemon-reload
 systemctl enable hls
 systemctl start hls
+
+# Install stream client
+
+IPFSID=$(cat ~/client-keys/ipfs_id)
+
+cd ~
+apt-get -y install nginx git
+git clone https://github.com/darkdrgn2k/ipfs-live-stream.git
+cd ipfs-live-stream
+cd client
+cd js-version-ournetworks
+rm -rf /var/www/html/*
+cp -r * /var/www/html
+
+echo "originalgw=gw='http://$DOMAIN_NAME:8080/'" >> /var/www/html/common.js
+echo "ipnsm3u8='http://$DOMAIN_NAME:8080/ipns/$IPFSID'" >> /var/www/html/common.js
