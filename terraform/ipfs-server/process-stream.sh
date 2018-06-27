@@ -14,12 +14,9 @@ function startFfmpeg() {
 
 }
 
-
-
 cd ~/live
 
-what=`date +Y%m%d%H%M`
-what="LIVE-$what"
+what="$(date +Y%m%d%H%M)-"
 
 # Start ffmpeg in background
 startFfmpeg &
