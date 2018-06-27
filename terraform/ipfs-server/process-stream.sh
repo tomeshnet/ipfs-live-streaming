@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Load settings
-~/settings
+. ~/settings
 
 function ffmpeg() {
    cd ~/live
