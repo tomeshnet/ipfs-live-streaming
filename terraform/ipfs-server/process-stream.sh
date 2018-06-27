@@ -11,11 +11,11 @@ cd ~/live
 what=`date +Y%m%d%H%M`
 what="LIVE-$what"
 
-if [ -z "$(screen -list | grep ffmpeg)" ]; then
-    rm -rf LIVE-*.ts
-    rm -rf LIVE-.m3u8
-    screen -dmS ffmpeg ffmpeg -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 15 -hls_list_size 0 -f hls $what.m3u8
-fi
+# Restart ffmpeg
+pkill -f ffmpeg
+rm -rf LIVE-*.ts
+rm -rf LIVE-.m3u8
+screen -dmS ffmpeg ffmpeg -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 15 -hls_list_size 0 -f hls $what.m3u8
 
 while true; do
   nextfile=$(ls $what*.ts 2>/dev/null | tail -n 1)
@@ -36,7 +36,7 @@ while true; do
     # Update the log with the future name (hash already there)
     sed -i "s#$nextfile#$nextfile $time.ts $timecode#" log
 
-    # remove next file
+    # Remove next file
     rm -f $nextfile
     
     # Rewrite the m3u8 file with the new ipfs hashes from the log
