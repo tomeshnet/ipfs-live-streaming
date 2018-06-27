@@ -62,5 +62,14 @@ echo -n `ipfs id | jq .ID | sed 's/"//g'` > ~/client-keys/ipfs_id
 cp -f /tmp/ipfs-server/process-stream.sh ~/process-stream.sh
 mkdir ~/live
 
-# Start video stream processing in background
-screen -dmS process-stream ./process-stream.sh $DOMAIN_NAME $RTMP_SERVER_PRIVATE_IP
+# Save important ip addresses into a file for later use
+echo "#!/bin/sh"  >> ~/settings
+echo export RTMP_STREAM=\"rtmp://$RTMP_SERVER_PRIVATE_IP/live\" >> ~/settings
+echo export IPFS_GATEWAY=\"http://$DOMAIN_NAME:8080\"  >> ~/settings
+chmod +x ~/settings
+
+# Configure script as a service
+cp -f /tmp/ipfs-server/hls.service /etc/systemd/system/hls.service
+systemctl daemon-reload
+systemctl enable hls
+systemctl start hls

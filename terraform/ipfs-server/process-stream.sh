@@ -1,21 +1,25 @@
-#!/bin/sh
+#!/bin/bash
 
-DOMAIN_NAME=$1
-RTMP_SERVER_PRIVATE_IP=$2
+# Load settings
+~/settings
 
-RTMP_STREAM=rtmp://$RTMP_SERVER_PRIVATE_IP/live
-IPFS_GATEWAY=http://$DOMAIN_NAME:8080
+function ffmpeg() {
+   cd ~/live
+   rm -rf LIVE-*.ts
+   rm -rf LIVE-.m3u8
+   mv /var/log/ffmpeg /var/log/ffmpeg.1
+   ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 15 -hls_list_size 0 -f hls $what.m3u8 > /var/log/ffmpeg
+}
+
+
 
 cd ~/live
 
 what=`date +Y%m%d%H%M`
 what="LIVE-$what"
 
-# Restart ffmpeg
-pkill -f ffmpeg
-rm -rf LIVE-*.ts
-rm -rf LIVE-.m3u8
-screen -dmS ffmpeg ffmpeg -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 15 -hls_list_size 0 -f hls $what.m3u8
+# Start ffmpeg in background
+ffmpeg &
 
 while true; do
   nextfile=$(ls $what*.ts 2>/dev/null | tail -n 1)
@@ -38,7 +42,7 @@ while true; do
 
     # Remove next file
     rm -f $nextfile
-    
+
     # Rewrite the m3u8 file with the new ipfs hashes from the log
     cp $what.m3u8 current.m3u8
     while read p; do
