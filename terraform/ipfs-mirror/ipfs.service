@@ -1,0 +1,16 @@
+[Unit]
+Description=IPFS daemon
+Wants=network.target
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/local/bin/ipfs daemon --enable-namesys-pubsub
+ExecStop=/usr/bin/pkill -f ipfs
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
