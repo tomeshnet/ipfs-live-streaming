@@ -1,6 +1,4 @@
 .keys/*
-!.keys/rtmp_yggdrasil
-!.keys/ipfs_id
 
 .terraform
 *.tfstate

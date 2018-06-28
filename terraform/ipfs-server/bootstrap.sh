@@ -65,7 +65,7 @@ mkdir ~/live
 # Save important ip addresses into a file for later use
 echo "#!/bin/sh"  >> ~/settings
 echo export RTMP_STREAM=\"rtmp://$RTMP_SERVER_PRIVATE_IP/live\" >> ~/settings
-echo export IPFS_GATEWAY=\"http://$DOMAIN_NAME:8080\"  >> ~/settings
+echo export IPFS_GATEWAY=\"http://rtmp-server.$DOMAIN_NAME:8080\"  >> ~/settings
 chmod +x ~/settings
 
 # Configure script as a service

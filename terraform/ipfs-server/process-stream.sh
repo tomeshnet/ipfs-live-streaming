@@ -3,15 +3,14 @@
 # Load settings
 . ~/settings
 
-function startFfmpeg() {
-   while true; do
-     cd ~/live
-     rm -rf LIVE-*.ts
-     rm -rf LIVE-.m3u8
-     mv /var/log/ffmpeg /var/log/ffmpeg.1
-     ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 15 -hls_list_size 0 -f hls $what.m3u8 > /var/log/ffmpeg 2>&1
-   done
-
+function startFFmpeg() {
+  while true; do
+    cd ~/live
+    rm -rf LIVE-*.ts
+    rm -rf LIVE-.m3u8
+    mv /var/log/ffmpeg /var/log/ffmpeg.1
+    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 15 -hls_list_size 0 -f hls $what.m3u8 > /var/log/ffmpeg 2>&1
+  done
 }
 
 cd ~/live
@@ -19,7 +18,7 @@ cd ~/live
 what="$(date +Y%m%d%H%M)-"
 
 # Start ffmpeg in background
-startFfmpeg &
+startFFmpeg &
 
 while true; do
   nextfile=$(ls $what*.ts 2>/dev/null | tail -n 1)
