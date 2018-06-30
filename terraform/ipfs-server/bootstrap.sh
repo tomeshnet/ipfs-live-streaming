@@ -52,7 +52,8 @@ systemctl start ipfs
 until [[ `ipfs id >/dev/null 2>&1; echo $?` -eq 0 ]]; do
   sleep 1
 done
-echo -n `ipfs id | jq .ID | sed 's/"//g'` > ~/client-keys/ipfs_id
+IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
+echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
 
 ########################
 # Process video stream #
@@ -60,26 +61,26 @@ echo -n `ipfs id | jq .ID | sed 's/"//g'` > ~/client-keys/ipfs_id
 
 # Install video stream processing script
 cp -f /tmp/ipfs-server/process-stream.sh ~/process-stream.sh
-mkdir ~/live
 
-# Save important ip addresses into a file for later use
-echo "#!/bin/sh"  >> ~/settings
-echo export RTMP_STREAM=\"rtmp://$RTMP_SERVER_PRIVATE_IP/live\" >> ~/settings
-echo export IPFS_GATEWAY=\"http://rtmp-server.$DOMAIN_NAME:8080\"  >> ~/settings
+# Save settings to a file
+echo "#!/bin/sh" > ~/settings
+echo "export DOMAIN_NAME=\"${DOMAIN_NAME}\"" >> ~/settings
+echo "export RTMP_SERVER_PRIVATE_IP=\"${RTMP_SERVER_PRIVATE_IP}\"" >> ~/settings
+echo "export RTMP_STREAM=\"rtmp://${RTMP_SERVER_PRIVATE_IP}/live\"" >> ~/settings
+echo "export IPFS_GATEWAY=\"http://ipfs-server.${DOMAIN_NAME}:8080\"" >> ~/settings
 chmod +x ~/settings
 
-# Configure script as a service
-cp -f /tmp/ipfs-server/hls.service /etc/systemd/system/hls.service
+# Install and start process-stream service
+cp -f /tmp/ipfs-server/process-stream.service /etc/systemd/system/process-stream.service
 systemctl daemon-reload
-systemctl enable hls
-systemctl start hls
+systemctl enable process-stream
+systemctl start process-stream
 
-# Install stream client
-
-IPFSID=$(cat ~/client-keys/ipfs_id)
-
+# Install video streaming client (TODO: move code to this repo)
 cd ~
-apt-get -y install nginx git
+apt install -y \
+  git \
+  nginx
 git clone https://github.com/darkdrgn2k/ipfs-live-stream.git
 cd ipfs-live-stream
 cd client
@@ -88,4 +89,4 @@ rm -rf /var/www/html/*
 cp -r * /var/www/html
 
 echo "originalgw=gw='http://$DOMAIN_NAME:8080/'" >> /var/www/html/common.js
-echo "ipnsm3u8='http://$DOMAIN_NAME:8080/ipns/$IPFSID'" >> /var/www/html/common.js
+echo "ipnsm3u8='http://$DOMAIN_NAME:8080/ipns/$IPFS_ID'" >> /var/www/html/common.js

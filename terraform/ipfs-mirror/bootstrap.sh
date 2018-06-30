@@ -2,8 +2,7 @@
 
 set -e
 
-IPFS_SERVER_PRIVATE_IP=$1
-IPFSKEY=$2
+IPFS_SERVER_IPFS_ID=$1
 
 IPFS_VERSION=0.4.15
 
@@ -18,13 +17,6 @@ systemctl disable apt-daily.timer
 
 # Install Digital Ocean new metrics
 curl -sSL https://agent.digitalocean.com/install.sh | sh
-
-# Install programs
-apt update
-apt install -y jq
-
-# Create directory for generating client keys
-mkdir /root/client-keys
 
 ########
 # IPFS #
@@ -45,16 +37,17 @@ systemctl daemon-reload
 systemctl enable ipfs
 systemctl start ipfs
 
-cp -f /tmp/ipfs-mirror/pin.sh /root/pin.sh
-cp -f /tmp/ipfs-mirror/pin-service.sh /root/pin-service.sh
-cp -f /tmp/ipfs-mirror/pin.service /etc/systemd/system/pin.service
-chmod a+x /root/*.sh
+############
+# IPFS pin #
+############
 
-sed -i "s#__IPFS_SERVER__#$IPFS_SERVER_PRIVATE_IP#" /root/pin.sh
-sed -i "s#__IPNS_KEY__#$IPFSKEY#" /root/pin.sh
-sed -i "s#__IPFS_SERVER__#$IPFS_SERVER_PRIVATE_IP#" /root/pin-service.sh
+# Copy IPFS pin scripts
+cp -f /tmp/ipfs-mirror/ipfs-pin.sh /root/ipfs-pin.sh
+cp -f /tmp/ipfs-mirror/ipfs-pin-service.sh /root/ipfs-pin-service.sh
+sed -i "s#__IPFS_SERVER_IPFS_ID__#$IPFS_SERVER_IPFS_ID#" /root/ipfs-pin-service.sh
 
+# Install and start IPFS pin service
+cp -f /tmp/ipfs-mirror/ipfs-pin.service /etc/systemd/system/ipfs-pin.service
 systemctl daemon-reload
-systemctl enable pin
-systemctl start pin
-
+systemctl enable ipfs-pin
+systemctl start ipfs-pin
