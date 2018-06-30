@@ -51,3 +51,15 @@ cp -f /tmp/ipfs-mirror/ipfs-pin.service /etc/systemd/system/ipfs-pin.service
 systemctl daemon-reload
 systemctl enable ipfs-pin
 systemctl start ipfs-pin
+
+# Install video streaming client
+apt install -y \
+  nginx \
+  zip
+rm -rf /var/www/html/*
+cd /var/www/html
+unzip /tmp/ipfs-server/hlsclient.zip
+
+echo "originalgw='http://ipfs-server.$DOMAIN_NAME:8080/'" >> /var/www/html/common.js
+echo "gw='http://ipfs-mirror.$DOMAIN_NAME:8080/'" >> /var/www/html/common.js
+echo "ipnsm3u8='http://ipfs-mirror.$DOMAIN_NAME:8080/ipns/$IPFS_ID'" >> /var/www/html/common.js
