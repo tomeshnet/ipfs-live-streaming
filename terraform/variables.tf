@@ -13,3 +13,7 @@ variable "pvt_key" {
 variable "ssh_fingerprint" {
   default = ".keys/ssh_fingerprint"
 }
+variable "mirror" {
+  description = "Number of ipfs-mirror instances to create"
+  default = 1
+}

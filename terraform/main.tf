@@ -140,6 +140,7 @@ resource "digitalocean_record" "ipfs-server-v6" {
 # IPFS mirror Droplet
 resource "digitalocean_droplet" "ipfs-mirror" {
   depends_on         = ["digitalocean_droplet.ipfs-server"]
+  count              = "${var.mirror}"
   image              = "debian-9-x64"
   name               = "ipfs-mirror"
   region             = "tor1"
@@ -171,24 +172,27 @@ resource "digitalocean_droplet" "ipfs-mirror" {
 
 # DNS records for IPFS mirror
 resource "digitalocean_record" "ipfs-mirror" {
+  count  = "${var.mirror}"
   domain = "${digitalocean_domain.ipfs-live-streaming.name}"
   type   = "A"
-  name   = "ipfs-mirror"
-  value  = "${digitalocean_droplet.ipfs-mirror.ipv4_address}"
+  name   = "ipfs-mirror-${count.index}"
+  value  = "${element(digitalocean_droplet.ipfs-mirror.*.ipv4_address, count.index)}"
   ttl    = "600"
 }
 resource "digitalocean_record" "ipfs-mirror-private" {
+  count  = "${var.mirror}"
   domain = "${digitalocean_domain.ipfs-live-streaming.name}"
   type   = "A"
-  name   = "private.ipfs-mirror"
-  value  = "${digitalocean_droplet.ipfs-mirror.ipv4_address_private}"
+  name   = "private.ipfs-mirror-${count.index}"
+  value  = "${element(digitalocean_droplet.ipfs-mirror.*.ipv4_address_private, count.index)}"
   ttl    = "600"
 }
 resource "digitalocean_record" "ipfs-mirror-v6" {
+  count  = "${var.mirror}"
   domain = "${digitalocean_domain.ipfs-live-streaming.name}"
   type   = "AAAA"
-  name   = "v6.ipfs-mirror"
-  value  = "${digitalocean_droplet.ipfs-mirror.ipv6_address}"
+  name   = "v6.ipfs-mirror-${count.index}"
+  value  = "${element(digitalocean_droplet.ipfs-mirror.*.ipv6_address, count.index)}"
   ttl    = "600"
 }
 
@@ -198,24 +202,25 @@ output "digital_ocean_droplets" {
   value      = [
     "${digitalocean_droplet.rtmp-server.name}: ${digitalocean_droplet.rtmp-server.status}",
     "${digitalocean_droplet.ipfs-server.name}: ${digitalocean_droplet.ipfs-server.status}",
-    "${digitalocean_droplet.ipfs-mirror.name}: ${digitalocean_droplet.ipfs-mirror.status}",
+    "${element(digitalocean_droplet.ipfs-mirror.*.name, 1)}: ${length(digitalocean_droplet.ipfs-mirror.*.status)} instance(s)",
+    "${digitalocean_droplet.ipfs-mirror.*.status}",
   ]
 }
 output "dns_records" {
   depends_on = ["digitalocean_record.*"]
   value      = [
-    "                    ${digitalocean_domain.ipfs-live-streaming.name}: ${digitalocean_domain.ipfs-live-streaming.ip_address}",
-    "        ${digitalocean_record.rtmp-server.fqdn}: ${digitalocean_record.rtmp-server.value}",
-    "        ${digitalocean_record.ipfs-server.fqdn}: ${digitalocean_record.ipfs-server.value}",
-    "        ${digitalocean_record.ipfs-mirror.fqdn}: ${digitalocean_record.ipfs-mirror.value}",
-    "${digitalocean_record.rtmp-server-private.fqdn}: ${digitalocean_record.rtmp-server-private.value}",
-    "${digitalocean_record.ipfs-server-private.fqdn}: ${digitalocean_record.ipfs-server-private.value}",
-    "${digitalocean_record.ipfs-mirror-private.fqdn}: ${digitalocean_record.ipfs-mirror-private.value}",
-    "     ${digitalocean_record.rtmp-server-v6.fqdn}: ${digitalocean_record.rtmp-server-v6.value}",
-    "     ${digitalocean_record.ipfs-server-v6.fqdn}: ${digitalocean_record.ipfs-server-v6.value}",
-    "     ${digitalocean_record.ipfs-mirror-v6.fqdn}: ${digitalocean_record.ipfs-mirror-v6.value}",
-    "    ${digitalocean_record.publish-openvpn.fqdn}: ${digitalocean_record.publish-openvpn.value}",
-    "  ${digitalocean_record.publish-yggdrasil.fqdn}: ${digitalocean_record.publish-yggdrasil.value}",
+    "                  ${digitalocean_domain.ipfs-live-streaming.name} = ${digitalocean_domain.ipfs-live-streaming.ip_address}",
+    "      ${digitalocean_record.rtmp-server.fqdn} = ${digitalocean_record.rtmp-server.value}",
+    "      ${digitalocean_record.ipfs-server.fqdn} = ${digitalocean_record.ipfs-server.value}",
+    "${zipmap(digitalocean_record.ipfs-mirror.*.fqdn, digitalocean_record.ipfs-mirror.*.value)}",
+    "      ${digitalocean_record.rtmp-server-private.fqdn} = ${digitalocean_record.rtmp-server-private.value}",
+    "      ${digitalocean_record.ipfs-server-private.fqdn} = ${digitalocean_record.ipfs-server-private.value}",
+    "${zipmap(digitalocean_record.ipfs-mirror-private.*.fqdn, digitalocean_record.ipfs-mirror-private.*.value)}",
+    "      ${digitalocean_record.rtmp-server-v6.fqdn} = ${digitalocean_record.rtmp-server-v6.value}",
+    "      ${digitalocean_record.ipfs-server-v6.fqdn} = ${digitalocean_record.ipfs-server-v6.value}",
+    "${zipmap(digitalocean_record.ipfs-mirror-v6.*.fqdn, digitalocean_record.ipfs-mirror-v6.*.value)}",
+    "     ${digitalocean_record.publish-openvpn.fqdn} = ${digitalocean_record.publish-openvpn.value}",
+    "   ${digitalocean_record.publish-yggdrasil.fqdn} = ${digitalocean_record.publish-yggdrasil.value}",
   ]
 }
 output "ssh_access" {
@@ -223,7 +228,7 @@ output "ssh_access" {
   value      = [
     "rtmp-server: ssh -i .keys/id_rsa root@${digitalocean_record.rtmp-server.fqdn}",
     "ipfs-server: ssh -i .keys/id_rsa root@${digitalocean_record.ipfs-server.fqdn}",
-    "ipfs-mirror: ssh -i .keys/id_rsa root@${digitalocean_record.ipfs-mirror.fqdn}",
+    "ipfs-mirror: ssh -i .keys/id_rsa root@ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
   ]
 }
 output "private_urls" {
