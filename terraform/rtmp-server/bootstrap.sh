@@ -5,6 +5,11 @@ set -e
 YGGDRASIL_GO_VERSION=0.2
 NGINX_VERSION=1.15.0
 
+# Wait for cloud-init to complete
+until [[ -f /var/lib/cloud/instance/boot-finished ]]; do
+  sleep 1
+done
+
 # Prevent apt-daily from holding up /var/lib/dpkg/lock on boot
 systemctl disable apt-daily.service
 systemctl disable apt-daily.timer
@@ -13,6 +18,7 @@ systemctl disable apt-daily.timer
 curl -sSL https://agent.digitalocean.com/install.sh | sh
 
 # Install standard tools
+apt update
 apt install -y \
   build-essential \
   git \
@@ -33,6 +39,9 @@ tar -C /usr/local -xzf /tmp/golang/go1.9.2.linux-amd64.tar.gz
   echo 'export PATH=$PATH:/usr/local/go/bin'
 } >> /etc/profile
 . /etc/profile
+
+# Create directory for generating client keys
+mkdir /root/client-keys
 
 ###########
 # OpenVPN #
@@ -88,7 +97,7 @@ service openvpn restart
 myip=$(ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}')
 
 # Create client config
-cat <<"EOF"> ~/client.conf
+cat <<"EOF"> ~/client-keys/client.conf
 client
 dev tun
 proto udp
@@ -102,18 +111,21 @@ verb 3
 EOF
 
 # Dynamic part of the config
-echo "remote $myip 1194"  >> ~/client.conf
-echo "<ca>" >> ~/client.conf
-cat keys/ca.crt >> ~/client.conf
-echo "</ca>" >> ~/client.conf
+echo "remote $myip 1194"  >> ~/client-keys/client.conf
+echo "<ca>" >> ~/client-keys/client.conf
+cat keys/ca.crt >> ~/client-keys/client.conf
+echo "</ca>" >> ~/client-keys/client.conf
 
-echo "<cert>" >> ~/client.conf
-cat keys/remote.crt >> ~/client.conf
-echo "</cert>" >> ~/client.conf
+echo "<cert>" >> ~/client-keys/client.conf
+cat keys/remote.crt >> ~/client-keys/client.conf
+echo "</cert>" >> ~/client-keys/client.conf
 
-echo "<key>" >> ~/client.conf
-cat keys/remote.key >> ~/client.conf
-echo "</key>" >> ~/client.conf
+echo "<key>" >> ~/client-keys/client.conf
+cat keys/remote.key >> ~/client-keys/client.conf
+echo "</key>" >> ~/client-keys/client.conf
+
+# Copy config for Windows
+cp ~/client-keys/client.conf ~/client-keys/client.opvn
 
 #############
 # Yggdrasil #
@@ -123,7 +135,7 @@ echo "</key>" >> ~/client.conf
 git clone https://github.com/yggdrasil-network/yggdrasil-go.git
 cd yggdrasil-go
 git checkout "v${YGGDRASIL_GO_VERSION}"
-cp /vagrant/rtmp-server/generate_keys.go .
+cp /tmp/rtmp-server/generate_keys.go .
 ./build -tags debug
 cp yggdrasil /usr/bin/
 cp yggdrasilctl /usr/bin/
@@ -134,10 +146,10 @@ sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
 
 # Generate publisher yggdrasil configurations
 ./generate_keys > ~/publisher.key
-yggdrasil --genconf > ~/publisher.conf
-sed -i "s/EncryptionPublicKey: .*/`cat ~/publisher.key | grep EncryptionPublicKey`/" ~/publisher.conf
-sed -i "s/EncryptionPrivateKey: .*/`cat ~/publisher.key | grep EncryptionPrivateKey`/" ~/publisher.conf
-sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2'}`:12345\"\]|" ~/publisher.conf
+yggdrasil --genconf > ~/client-keys/yggdrasil.conf
+sed -i "s/EncryptionPublicKey: .*/`cat ~/publisher.key | grep EncryptionPublicKey`/" ~/client-keys/yggdrasil.conf
+sed -i "s/EncryptionPrivateKey: .*/`cat ~/publisher.key | grep EncryptionPrivateKey`/" ~/client-keys/yggdrasil.conf
+sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2'}`:12345\"\]|" ~/client-keys/yggdrasil.conf
 
 # Start yggdrasil service
 cp contrib/systemd/* /etc/systemd/system/
@@ -145,6 +157,12 @@ systemctl daemon-reload
 systemctl enable yggdrasil
 systemctl start yggdrasil
 cd ~
+
+# Write server yggdrasil IP address to client file
+until [[ `ifconfig tun1 >/dev/null 2>&1; echo $?` -eq 0 ]]; do
+  sleep 1
+done
+echo -n `ifconfig tun1 | grep 'inet6 fd' | awk '{print $2'}` > ~/client-keys/rtmp_yggdrasil
 
 #######################
 # nginx + RTMP module #
@@ -163,7 +181,7 @@ make install
 
 # Configure nginx RTMP server
 mkdir /root/hls
-cp -f /vagrant/rtmp-server/nginx.conf /usr/local/nginx/conf/nginx.conf
+cp -f /tmp/rtmp-server/nginx.conf /usr/local/nginx/conf/nginx.conf
 sed -i "s/__PUBLISHER_IP_ADDRESS__/`cat ~/publisher.key | grep Address | awk '{print $2}'`/" /usr/local/nginx/conf/nginx.conf
 
 # Start nginx
