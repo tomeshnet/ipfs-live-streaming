@@ -52,7 +52,8 @@ systemctl start ipfs
 until [[ `ipfs id >/dev/null 2>&1; echo $?` -eq 0 ]]; do
   sleep 1
 done
-echo -n `ipfs id | jq .ID | sed 's/"//g'` > ~/client-keys/ipfs_id
+IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
+echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
 
 ########################
 # Process video stream #
@@ -60,7 +61,32 @@ echo -n `ipfs id | jq .ID | sed 's/"//g'` > ~/client-keys/ipfs_id
 
 # Install video stream processing script
 cp -f /tmp/ipfs-server/process-stream.sh ~/process-stream.sh
-mkdir ~/live
 
-# Start video stream processing in background
-screen -dmS process-stream ./process-stream.sh $DOMAIN_NAME $RTMP_SERVER_PRIVATE_IP
+# Save settings to a file
+echo "#!/bin/sh" > ~/settings
+echo "export DOMAIN_NAME=\"${DOMAIN_NAME}\"" >> ~/settings
+echo "export RTMP_SERVER_PRIVATE_IP=\"${RTMP_SERVER_PRIVATE_IP}\"" >> ~/settings
+echo "export RTMP_STREAM=\"rtmp://${RTMP_SERVER_PRIVATE_IP}/live\"" >> ~/settings
+echo "export IPFS_GATEWAY=\"http://ipfs-server.${DOMAIN_NAME}:8080\"" >> ~/settings
+chmod +x ~/settings
+
+# Install and start process-stream service
+cp -f /tmp/ipfs-server/process-stream.service /etc/systemd/system/process-stream.service
+systemctl daemon-reload
+systemctl enable process-stream
+systemctl start process-stream
+
+# Install video streaming client (TODO: move code to this repo)
+cd ~
+apt install -y \
+  git \
+  nginx
+git clone https://github.com/darkdrgn2k/ipfs-live-stream.git
+cd ipfs-live-stream
+cd client
+cd js-version-ournetworks
+rm -rf /var/www/html/*
+cp -r * /var/www/html
+
+echo "originalgw=gw='http://$DOMAIN_NAME:8080/'" >> /var/www/html/common.js
+echo "ipnsm3u8='http://$DOMAIN_NAME:8080/ipns/$IPFS_ID'" >> /var/www/html/common.js

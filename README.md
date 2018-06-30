@@ -179,6 +179,11 @@ installed on your local machine, which can be the same device running OBS Studio
 
         terraform apply
 
+    By default, this will create one instance of each server type. You may choose to create
+    multiple instances of `ipfs-mirror` by overriding the `mirror` variable. For example:
+
+        terraform apply -var "mirror=2"
+
     From your browser, login to your Digital Ocean dashboard and find your new VMs tagged
     with `ipfs-live-streaming`.
 

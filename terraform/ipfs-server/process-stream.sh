@@ -1,18 +1,25 @@
-#!/bin/sh
+#!/bin/bash
 
-DOMAIN_NAME=$1
-RTMP_SERVER_PRIVATE_IP=$2
+# Load settings
+. ~/settings
 
-RTMP_STREAM=rtmp://$RTMP_SERVER_PRIVATE_IP/live
-IPFS_GATEWAY=http://$DOMAIN_NAME:8080
+function startFFmpeg() {
+  while true; do
+    mv /var/log/ffmpeg /var/log/ffmpeg.1
+    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 15 -hls_list_size 0 -f hls $what.m3u8 > /var/log/ffmpeg 2>&1
+    sleep 1
+  done
+}
 
+# Create directory for HLS content
+rm -rf ~/live
+mkdir ~/live
 cd ~/live
 
-what='LIVE'
-rm -rf $what*.ts
-rm -rf $what.m3u8
+what="$(date +%Y%m%d%H%M)-LIVE"
 
-screen -dmS ffmpeg ffmpeg -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 30 -hls_list_size 0 -f hls $what.m3u8
+# Start ffmpeg in background
+startFFmpeg &
 
 while true; do
   nextfile=$(ls $what*.ts 2>/dev/null | tail -n 1)
@@ -28,13 +35,13 @@ while true; do
     time=`date "+%F-%H-%M-%S"`
 
     # Add the file to IPFS
-    ipfs add $nextfile >> log
+    ipfs add $nextfile >> ~/process-stream.log
 
     # Update the log with the future name (hash already there)
-    sed -i "s#$nextfile#$nextfile $time.ts $timecode#" log
+    sed -i "s#$nextfile#$nextfile $time.ts $timecode#" ~/process-stream.log
 
-    # Move next file
-    mv $nextfile $time.ts
+    # Remove next file
+    rm -f $nextfile
 
     # Rewrite the m3u8 file with the new ipfs hashes from the log
     cp $what.m3u8 current.m3u8
@@ -42,10 +49,12 @@ while true; do
       h=$(echo "$p" | awk '{print $2}') # Hash
       f=$(echo "$p" | awk '{print $3}') # Filename
       sed -i "s#$f#${IPFS_GATEWAY}/ipfs/$h#" current.m3u8
-    done < log
+    done < ~/process-stream.log
 
     # IPNS publish
     m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
-    ipfs name publish --timeout=1s $m3u8hash &
+    ipfs name publish --timeout=5s $m3u8hash &
+  else
+    sleep 5
   fi
 done
