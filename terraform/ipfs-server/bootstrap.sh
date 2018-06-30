@@ -82,8 +82,11 @@ apt install -y \
   nginx \
   zip
 rm -rf /var/www/html/*
-cd /var/www/html
-unzip /tmp/ipfs-server/hlsclient.zip
+cp -f /tmp/ipfs-server/hlsclient.zip ~/hlsclient.zip
 
-echo "originalgw=gw='http://ipfs-server.$DOMAIN_NAME:8080/'" >> /var/www/html/common.js
-echo "ipnsm3u8='http://ipfs-server.$DOMAIN_NAME:8080/ipns/$IPFS_ID'" >> /var/www/html/common.js
+cd /var/www/html
+unzip ~hlsclient.zip
+
+echo "originalgw=gw='http://ipfs-server.$DOMAIN_NAME:8080/';" >> /var/www/html/common.js
+echo "ipnsm3u8='http://ipfs-server.$DOMAIN_NAME:8080/ipns/$IPFS_ID';" >> /var/www/html/common.js
+echo "clearm3u8='';"  >> /var/www/html/common.js
