@@ -79,14 +79,11 @@ systemctl start process-stream
 # Install video streaming client (TODO: move code to this repo)
 cd ~
 apt install -y \
-  git \
-  nginx
-git clone https://github.com/darkdrgn2k/ipfs-live-stream.git
-cd ipfs-live-stream
-cd client
-cd js-version-ournetworks
+  nginx \
+  zip
 rm -rf /var/www/html/*
-cp -r * /var/www/html
+cd /var/www/html
+unzip /tmp/ipfs-server/hlsclient.zip
 
-echo "originalgw=gw='http://$DOMAIN_NAME:8080/'" >> /var/www/html/common.js
-echo "ipnsm3u8='http://$DOMAIN_NAME:8080/ipns/$IPFS_ID'" >> /var/www/html/common.js
+echo "originalgw=gw='http://ipfs-server.$DOMAIN_NAME:8080/'" >> /var/www/html/common.js
+echo "ipnsm3u8='http://ipfs-server.$DOMAIN_NAME:8080/ipns/$IPFS_ID'" >> /var/www/html/common.js
