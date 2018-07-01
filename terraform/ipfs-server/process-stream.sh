@@ -22,7 +22,7 @@ what="$(date +%Y%m%d%H%M)-LIVE"
 startFFmpeg &
 
 while true; do
-  nextfile=$(ls $what*.ts 2>/dev/null | tail -n 1)
+  nextfile=$(ls -t $what*.ts 2>/dev/null | tail -n 1)
 
   if ! [ -z "$nextfile" ]; then
     # Wait for file to finish writing
@@ -35,21 +35,27 @@ while true; do
     time=`date "+%F-%H-%M-%S"`
 
     # Add the file to IPFS
-    ipfs add $nextfile >> ~/process-stream.log
-
+    ipfs add $nextfile > ~/tmp.txt
+    
     # Update the log with the future name (hash already there)
-    sed -i "s#$nextfile#$nextfile $time.ts $timecode#" ~/process-stream.log
+    echo $(cat ~/tmp.txt) $time.ts $timecode >> ~/process-stream.log    
+    
+    # Remove nextfile and tmp.txt
+    rm -f $nextfile ~/tmp.txt
 
-    # Remove next file
-    rm -f $nextfile
+    # write the m3u8 file with the new ipfs hashes from the log
+    totalLines="$(wc -l $what.m3u8 | awk '{print $1}')"
+    
+    sequence=0
+    if (( "$totalLines" > 240 )); then
+        sequence=`expr $totalLines - 240`
+    fi
+    echo "#EXTM3U" > current.m3u8
+    echo "#EXT-X-VERSION:3" >> current.m3u8
+    echo "#EXT-X-TARGETDURATION:11" >> current.m3u8
+    echo "#EXT-X-MEDIA-SEQUENCE:$sequence" >> current.m3u8
 
-    # Rewrite the m3u8 file with the new ipfs hashes from the log
-    cp $what.m3u8 current.m3u8
-    while read p; do
-      h=$(echo "$p" | awk '{print $2}') # Hash
-      f=$(echo "$p" | awk '{print $3}') # Filename
-      sed -i "s#$f#${IPFS_GATEWAY}/ipfs/$h#" current.m3u8
-    done < ~/process-stream.log
+    tail -n 240 $what.m3u8 | awk '{print "#EXTINF:"$5"\n'${IPFS_GATEWAY}':8080/ipfs/"$2}' >> current.m3u8
 
     # IPNS publish
     m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
