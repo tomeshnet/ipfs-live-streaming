@@ -9,14 +9,14 @@
     <script src="common.js"></script>
     <script>
       if (getQueryVariable("url")) {
-     	  m3u8_ipfs=getQueryVariable("url");
+        m3u8_ipfs=getQueryVariable("url");
       }
       if (getQueryVariable("ipfs_gateway_self")) {
-      	ipfs_gateway_self=getQueryVariable("ipfs_gateway_self");
+        ipfs_gateway_self=getQueryVariable("ipfs_gateway_self");
       }	
-	    if (!m3u8_http) {
-		    document.getElementById("clearStream").style.display="none";
-	    }
+      if (!m3u8_http) {
+        document.getElementById("clearStream").style.display="none";
+      }
     </script>
   </head>
   <body>
