@@ -25,14 +25,11 @@ while true; do
   nextfile=$(ls -tr $what*.ts 2>/dev/null | tail -n 1)
 
   if ! [ -z "$nextfile" ]; then
-
-    # Check if the next file on the list is still being written by ffmpeg
+    # Check if the next file on the list is still being written to by ffmpeg
     if ! [ -z "$(lsof $nextfile | grep ffmpeg)" ]; then
-
-      # Wait for file to finish writing.
-      # If not finished in 45 seconds something is wrong, timeout.
+      # Wait for file to finish writing
+      # If not finished in 45 seconds something is wrong, timeout
       inotifywait -e close_write $nextfile -t 45
-      
     fi
 
     # Grab the timecode from the m3u8 file so we can add it to the log
