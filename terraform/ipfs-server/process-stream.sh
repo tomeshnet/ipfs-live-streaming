@@ -43,7 +43,7 @@ while true; do
     # Remove nextfile and tmp.txt
     rm -f $nextfile ~/tmp.txt
 
-    # write the m3u8 file with the new ipfs hashes from the log
+    # Write the m3u8 file with the new IPFS hashes from the log
     totalLines="$(wc -l $what.m3u8 | awk '{print $1}')"
     
     sequence=0
