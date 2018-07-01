@@ -85,7 +85,7 @@ rm -rf /var/www/html/*
 cp -f /tmp/ipfs-server/hlsclient.zip ~/hlsclient.zip
 
 cd /var/www/html
-unzip ~hlsclient.zip
+unzip ~/hlsclient.zip
 
 echo "originalgw=gw='http://ipfs-server.$DOMAIN_NAME:8080/';" >> /var/www/html/common.js
 echo "ipnsm3u8='http://ipfs-server.$DOMAIN_NAME:8080/ipns/$IPFS_ID';" >> /var/www/html/common.js
