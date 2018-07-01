@@ -26,7 +26,8 @@ apt install -y \
   ffmpeg \
   inotify-tools \
   jq \
-  nginx
+  nginx \
+  lsof
 
 # Create directory for generating client keys
 mkdir /root/client-keys
