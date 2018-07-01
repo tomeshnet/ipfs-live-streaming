@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Sample Video Player</title>
+    <title>IPFS Live Streaming</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="src/video-js.min.css" rel="stylesheet">
     <link href="src-dvr/videojs-dvr.css" rel="stylesheet">
@@ -25,9 +25,9 @@
     <script src="src-dvr/videojs-dvr.js"></script>
     <div class="header" id="StreamSelecter">
       <img src="images/logo.svg" id="logo" /><br>
-      <h1>Sample Live Stream</h1>
+      <h1>Live Stream</h1>
       <div id="SelectStream">
-        <h2>Select Stream Source</h2>
+        <h2>Select Source</h2>
         <div class="StreamOption">
           <a href="#" onclick="ipfsStream(); return false;">IPFS<br>
             <img src="images/ipfs-logo.png" width="153" height="173" alt="" /><br>
@@ -59,7 +59,7 @@
 
       function httpStream() {
         live.src({
-          src: m3u8_http[Math.floor(Math.random() * m3u8_http.length)],
+          src: m3u8_http_urls[Math.floor(Math.random() * m3u8_http_urls.length)],
           type: 'application/x-mpegURL',
         });
         loadStream();

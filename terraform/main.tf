@@ -110,7 +110,7 @@ resource "digitalocean_droplet" "ipfs-server" {
     inline           = [
       "chmod +x /tmp/ipfs-server/bootstrap.sh",
       "chmod +x /tmp/ipfs-server/process-stream.sh",
-      "/tmp/ipfs-server/bootstrap.sh ${file(var.domain_name)} ${digitalocean_droplet.rtmp-server.ipv4_address_private} ${var.http_m3u8}",
+      "/tmp/ipfs-server/bootstrap.sh ${file(var.domain_name)} ${digitalocean_droplet.rtmp-server.ipv4_address_private} ${var.m3u8_http_urls}",
     ]
   }
   provisioner "local-exec" {
@@ -173,7 +173,7 @@ resource "digitalocean_droplet" "ipfs-mirror" {
       "chmod +x /tmp/ipfs-mirror/bootstrap.sh",
       "chmod +x /tmp/ipfs-mirror/ipfs-pin.sh",
       "chmod +x /tmp/ipfs-mirror/ipfs-pin-service.sh",
-      "/tmp/ipfs-mirror/bootstrap.sh ${count.index} ${file(var.domain_name)} ${file(".keys/ipfs_id")} ${var.http_m3u8}",
+      "/tmp/ipfs-mirror/bootstrap.sh ${count.index} ${file(var.domain_name)} ${file(".keys/ipfs_id")} ${var.m3u8_http_urls}",
     ]
   }
 }

@@ -125,7 +125,7 @@ cat keys/remote.key >> ~/client-keys/client.conf
 echo "</key>" >> ~/client-keys/client.conf
 
 # Copy config for Windows
-cp ~/client-keys/client.conf ~/client-keys/client.opvn
+cp ~/client-keys/client.conf ~/client-keys/client.ovpn
 
 #############
 # Yggdrasil #
