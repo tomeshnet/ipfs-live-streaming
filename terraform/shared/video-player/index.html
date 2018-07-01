@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Sample Video Player</title>
+    <title>IPFS Live Streaming</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="src/video-js.min.css" rel="stylesheet">
     <link href="src-dvr/videojs-dvr.css" rel="stylesheet">
@@ -13,7 +13,7 @@
       }
       if (getQueryVariable("ipfs_gateway_self")) {
         ipfs_gateway_self=getQueryVariable("ipfs_gateway_self");
-      }	
+      }
     </script>
   </head>
   <body>
@@ -25,9 +25,9 @@
     <script src="src-dvr/videojs-dvr.js"></script>
     <div class="header" id="StreamSelecter">
       <img src="images/logo.svg" id="logo" /><br>
-      <h1>Sample Live Stream</h1>
+      <h1>Live Stream</h1>
       <div id="SelectStream">
-        <h2>Select Stream Source</h2>
+        <h2>Select Source</h2>
         <div class="StreamOption">
           <a href="#" onclick="ipfsStream(); return false;">IPFS<br>
             <img src="images/ipfs-logo.png" width="153" height="173" alt="" /><br>
@@ -59,7 +59,7 @@
 
       function httpStream() {
         live.src({
-          src: m3u8_http[Math.floor(Math.random() * m3u8_http.length)],
+          src: m3u8_http_urls[Math.floor(Math.random() * m3u8_http_urls.length)],
           type: 'application/x-mpegURL',
         });
         loadStream();
@@ -75,7 +75,7 @@
           // Replace IPFS gateway of origin with that of this node
           options.uri = options.uri.replace(ipfs_gateway_origin, ipfs_gateway_self);
           if (options.uri.indexOf("/ipfs/")) {
-            document.getElementById("loadingTitle").innerHTML="Located stream via IPNS..."
+            document.getElementById("loadingTitle").innerHTML="Located stream via IPNS"
             document.getElementById("msg").innerHTML="Downloading video content..."
           }
           console.debug(options.uri);
@@ -102,9 +102,10 @@
         console.debug(this.error());
         document.getElementById("msg").innerHTML=this.error().message;
       });
-      if ( !m3u8_http || !Array.isArray(m3u8_http) || (m3u8_http.length==0) ) {
+
+      if (!m3u8_http_urls || !Array.isArray(m3u8_http_urls) || (m3u8_http_urls.length==0)) {
         document.getElementById("clearStream").style.display="none";
-      }      
+      }
     </script>
     <style>
     .video-js .vjs-control {

@@ -5,7 +5,7 @@ set -e
 IPFS_MIRROR_INSTANCE=$1
 DOMAIN_NAME=$2
 IPFS_SERVER_IPFS_ID=$3
-HTTP_M3U8=$4
+M3U8_HTTP_URLS=$4
 
 IPFS_VERSION=0.4.15
 
@@ -69,7 +69,7 @@ rm -rf /var/www/html/*
 cp -r /tmp/video-player/* /var/www/html/
 
 # Configure video player
-sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
-sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-mirror-${IPFS_MIRROR_INSTANCE}.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
+sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-mirror-${IPFS_MIRROR_INSTANCE}.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
+sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_SERVER_IPFS_ID}#g" /var/www/html/common.js
-sed -i "s#__HTTP_M3U8__#${HTTP_M3U8}#g" /var/www/html/common.js
+sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/common.js
