@@ -22,11 +22,18 @@ what="$(date +%Y%m%d%H%M)-LIVE"
 startFFmpeg &
 
 while true; do
-  nextfile=$(ls -t $what*.ts 2>/dev/null | tail -n 1)
+  nextfile=$(ls -tr $what*.ts 2>/dev/null | tail -n 1)
 
   if ! [ -z "$nextfile" ]; then
-    # Wait for file to finish writing
-    inotifywait -e close_write $nextfile
+
+    # Check if the next file on the list is still being written by ffmpeg
+    if ! [ -z "$(lsof $nextfile | grep ffmpeg)" ]; then
+
+      # Wait for file to finish writing.
+      # If not finished in 45 seconds something is wrong, timeout.
+      inotifywait -e close_write $nextfile -t 45
+      
+    fi
 
     # Grab the timecode from the m3u8 file so we can add it to the log
     timecode=`cat $what.m3u8 | grep -B1 $nextfile | grep "#" | awk -F : '{print $2}' | tr -d ,`
