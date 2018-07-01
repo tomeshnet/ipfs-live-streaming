@@ -102,7 +102,7 @@
         console.debug(this.error());
         document.getElementById("msg").innerHTML=this.error().message;
       });
-      if (!m3u8_http) {
+      if ( !m3u8_http || !Array.isArray(m3u8_http) ) {
         document.getElementById("clearStream").style.display="none";
       }      
     </script>
