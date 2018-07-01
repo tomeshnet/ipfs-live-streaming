@@ -99,6 +99,10 @@ resource "digitalocean_droplet" "ipfs-server" {
     timeout          = "2m"
   }
   provisioner "file" {
+    source           = "shared/video-player"
+    destination      = "/tmp"
+  }
+  provisioner "file" {
     source           = "ipfs-server"
     destination      = "/tmp"
   }
@@ -106,7 +110,7 @@ resource "digitalocean_droplet" "ipfs-server" {
     inline           = [
       "chmod +x /tmp/ipfs-server/bootstrap.sh",
       "chmod +x /tmp/ipfs-server/process-stream.sh",
-      "/tmp/ipfs-server/bootstrap.sh ${file(var.domain_name)} ${digitalocean_droplet.rtmp-server.ipv4_address_private}",
+      "/tmp/ipfs-server/bootstrap.sh ${file(var.domain_name)} ${digitalocean_droplet.rtmp-server.ipv4_address_private} ${var.mirror}",
     ]
   }
   provisioner "local-exec" {
@@ -157,6 +161,10 @@ resource "digitalocean_droplet" "ipfs-mirror" {
     timeout          = "2m"
   }
   provisioner "file" {
+    source           = "shared/video-player"
+    destination      = "/tmp"
+  }
+  provisioner "file" {
     source           = "ipfs-mirror"
     destination      = "/tmp"
   }
@@ -165,7 +173,7 @@ resource "digitalocean_droplet" "ipfs-mirror" {
       "chmod +x /tmp/ipfs-mirror/bootstrap.sh",
       "chmod +x /tmp/ipfs-mirror/ipfs-pin.sh",
       "chmod +x /tmp/ipfs-mirror/ipfs-pin-service.sh",
-      "/tmp/ipfs-mirror/bootstrap.sh ${file(".keys/ipfs_id")}",
+      "/tmp/ipfs-mirror/bootstrap.sh ${count.index} ${file(var.domain_name)} ${file(".keys/ipfs_id")} ${var.mirror}",
     ]
   }
 }
@@ -200,9 +208,9 @@ resource "digitalocean_record" "ipfs-mirror-v6" {
 output "digital_ocean_droplets" {
   depends_on = ["digitalocean_record.*"]
   value      = [
-    "${digitalocean_droplet.rtmp-server.name}: ${digitalocean_droplet.rtmp-server.status}",
-    "${digitalocean_droplet.ipfs-server.name}: ${digitalocean_droplet.ipfs-server.status}",
-    "${element(digitalocean_droplet.ipfs-mirror.*.name, 1)}: ${length(digitalocean_droplet.ipfs-mirror.*.status)} instance(s)",
+    "${digitalocean_droplet.rtmp-server.name}:             ${digitalocean_droplet.rtmp-server.status}",
+    "${digitalocean_droplet.ipfs-server.name}:             ${digitalocean_droplet.ipfs-server.status}",
+    "ipfs-mirror instance(s): ${length(digitalocean_droplet.ipfs-mirror.*.status)}",
     "${digitalocean_droplet.ipfs-mirror.*.status}",
   ]
 }

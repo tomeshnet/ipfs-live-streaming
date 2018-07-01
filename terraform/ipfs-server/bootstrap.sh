@@ -4,6 +4,7 @@ set -e
 
 DOMAIN_NAME=$1
 RTMP_SERVER_PRIVATE_IP=$2
+HTTP_M3U8=$3
 
 IPFS_VERSION=0.4.15
 
@@ -24,7 +25,8 @@ apt update
 apt install -y \
   ffmpeg \
   inotify-tools \
-  jq
+  jq \
+  nginx
 
 # Create directory for generating client keys
 mkdir /root/client-keys
@@ -76,17 +78,16 @@ systemctl daemon-reload
 systemctl enable process-stream
 systemctl start process-stream
 
-# Install video streaming client (TODO: move code to this repo)
-cd ~
-apt install -y \
-  nginx \
-  zip
+################
+# Video player #
+################
+
+# Install web video player
 rm -rf /var/www/html/*
-cp -f /tmp/ipfs-server/hlsclient.zip ~/hlsclient.zip
+cp -r /tmp/video-player/* /var/www/html/
 
-cd /var/www/html
-unzip ~/hlsclient.zip
-
-echo "originalgw=gw='http://ipfs-server.$DOMAIN_NAME:8080/';" >> /var/www/html/common.js
-echo "ipnsm3u8='http://ipfs-server.$DOMAIN_NAME:8080/ipns/$IPFS_ID';" >> /var/www/html/common.js
-echo "clearm3u8='';"  >> /var/www/html/common.js
+# Configure video player
+sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
+sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
+sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/common.js
+sed -i "s#__HTTP_M3U8__#${HTTP_M3U8}#g" /var/www/html/common.js

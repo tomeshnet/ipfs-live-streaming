@@ -17,3 +17,7 @@ variable "mirror" {
   description = "Number of ipfs-mirror instances to create"
   default = 1
 }
+variable "http_m3u8" {
+  description = "Optional URL to m3u8 over HTTP"
+  default = ""
+}
