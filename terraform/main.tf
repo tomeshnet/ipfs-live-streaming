@@ -234,9 +234,9 @@ output "dns_records" {
 output "ssh_access" {
   depends_on = ["digitalocean_record.*"]
   value      = [
-    "rtmp-server: ssh -i .keys/id_rsa root@${digitalocean_record.rtmp-server.fqdn}",
-    "ipfs-server: ssh -i .keys/id_rsa root@${digitalocean_record.ipfs-server.fqdn}",
-    "ipfs-mirror: ssh -i .keys/id_rsa root@ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
+    "rtmp-server:   ssh -i .keys/id_rsa root@${digitalocean_record.rtmp-server.fqdn}",
+    "ipfs-server:   ssh -i .keys/id_rsa root@${digitalocean_record.ipfs-server.fqdn}",
+    "ipfs-mirror-N: ssh -i .keys/id_rsa root@ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
   ]
 }
 output "private_urls" {
@@ -249,7 +249,10 @@ output "private_urls" {
 output "public_urls" {
   depends_on = ["digitalocean_record.*"]
   value      = [
-    "RTMP stream: rtmp://${digitalocean_record.rtmp-server.fqdn}/live",
-    "HLS stream:  http://${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
+    "RTMP stream:             rtmp://${digitalocean_record.rtmp-server.fqdn}/live",
+    "HLS stream (origin):     http://${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
+    "HLS stream (mirror-N):   http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
+    "Video player (origin):   http://${digitalocean_domain.ipfs-live-streaming.name}",
+    "Video player (mirror-N): http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
   ]
 }
