@@ -52,10 +52,10 @@ while true; do
     fi
     echo "#EXTM3U" > current.m3u8
     echo "#EXT-X-VERSION:3" >> current.m3u8
-    echo "#EXT-X-TARGETDURATION:11" >> current.m3u8
+    echo "#EXT-X-TARGETDURATION:15" >> current.m3u8
     echo "#EXT-X-MEDIA-SEQUENCE:$sequence" >> current.m3u8
 
-    tail -n 240 $what.m3u8 | awk '{print "#EXTINF:"$5"\n'${IPFS_GATEWAY}':8080/ipfs/"$2}' >> current.m3u8
+    tail -n 240 ~/process-stream.log | awk '{print "#EXTINF:"$5"\n'${IPFS_GATEWAY}':8080/ipfs/"$2}' >> current.m3u8
 
     # IPNS publish
     m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
