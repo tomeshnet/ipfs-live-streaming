@@ -4,7 +4,7 @@ set -e
 
 DOMAIN_NAME=$1
 RTMP_SERVER_PRIVATE_IP=$2
-HTTP_M3U8=$3
+M3U8_HTTP_URLS=$3
 
 IPFS_VERSION=0.4.15
 
@@ -90,4 +90,4 @@ cp -r /tmp/video-player/* /var/www/html/
 sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
 sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/common.js
-sed -i "s#__HTTP_M3U8__#${HTTP_M3U8}#g" /var/www/html/common.js
+sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/common.js
