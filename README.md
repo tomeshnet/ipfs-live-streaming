@@ -190,11 +190,11 @@ installed on your local machine, which can be the same device running OBS Studio
 1. You will find a couple new files in your `.keys` folder:
 
         client.conf    (for OpenVPN on Linux)
-        client.opvn    (for OpenVPN on MacOS and Windows)
+        client.ovpn    (for OpenVPN on MacOS and Windows)
         yggdrasil.conf (for Yggdrasil)
 
     To authenticate using OpenVPN, connect with your OpenVPN client using `client.conf` or
-    `client.opvn`, then publish your OBS Studio stream to:
+    `client.ovpn`, then publish your OBS Studio stream to:
 
         rtmp://10.10.10.1:1935/live
 
