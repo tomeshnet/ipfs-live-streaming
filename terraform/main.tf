@@ -86,7 +86,7 @@ resource "digitalocean_droplet" "ipfs-server" {
   image              = "debian-9-x64"
   name               = "ipfs-server"
   region             = "tor1"
-  size               = "1gb"
+  size               = "s-2vcpu-2gb"
   tags               = ["${digitalocean_tag.ipfs-live-streaming.id}"]
   private_networking = true
   ipv6               = true
@@ -254,5 +254,6 @@ output "public_urls" {
     "HLS stream (mirror-N):   http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
     "Video player (origin):   http://${digitalocean_domain.ipfs-live-streaming.name}",
     "Video player (mirror-N): http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
+    "Video player (debug):    http://${digitalocean_domain.ipfs-live-streaming.name}?url=live.m3u8",
   ]
 }

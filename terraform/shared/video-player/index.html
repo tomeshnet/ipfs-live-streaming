@@ -4,7 +4,6 @@
     <title>IPFS Live Streaming</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="src/video-js.min.css" rel="stylesheet">
-    <link href="src-dvr/videojs-dvr.css" rel="stylesheet">
     <link href="common.css" rel="stylesheet" type="text/css">
     <script src="common.js"></script>
     <script>
@@ -22,7 +21,6 @@
     </video>
     <script src="src/video.js"></script> 
     <script src="src/videojs-contrib-hls.js"></script> 
-    <script src="src-dvr/videojs-dvr.js"></script>
     <div class="header" id="StreamSelecter">
       <img src="images/logo.svg" id="logo" /><br>
       <h1>Live Stream</h1>
@@ -50,12 +48,7 @@
     </div>
 
     <script>
-      videojs.options.html5.nativeAudioTracks=false;
-      videojs.options.html5.nativeVideoTracks=false;	
-      videojs.options.hls.overrideNative=true;
-
       var live = videojs('live');
-      live.dvrseekbar();
 
       function httpStream() {
         live.src({
