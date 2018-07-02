@@ -70,9 +70,6 @@ while true; do
 
     tail -n ${M3U8_SIZE} ~/process-stream.log | awk '{print "#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
 
-    # Add m3u8 file to IPFS
-    m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
-
     # Copy files to web server
     cp current.m3u8 /var/www/html/live.m3u8
     cp ~/process-stream.log /var/www/html/live.log
