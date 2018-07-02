@@ -1,12 +1,15 @@
 #!/bin/bash
 
+HLS_TIME=15
+HLS_LIST_SIZE=10
+
 # Load settings
 . ~/settings
 
 function startFFmpeg() {
   while true; do
     mv /var/log/ffmpeg /var/log/ffmpeg.1
-    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time 15 -hls_list_size 0 -f hls $what.m3u8 > /var/log/ffmpeg 2>&1
+    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time ${HLS_TIME} -hls_list_size ${HLS_LIST_SIZE} -f hls $what.m3u8 > /var/log/ffmpeg 2>&1
     sleep 1
   done
 }
@@ -33,7 +36,13 @@ while true; do
     fi
 
     # Grab the timecode from the m3u8 file so we can add it to the log
-    timecode=`cat $what.m3u8 | grep -B1 $nextfile | grep "#" | awk -F : '{print $2}' | tr -d ,`
+    timecode=`grep -B1 $nextfile $what.m3u8 | head -n1 | awk -F : '{print $2}' | tr -d ,`
+    attempts=10
+    until [[ "$timecode" || $attempts -eq 0 ]]; do
+      sleep 0.2
+      timecode=`grep -B1 $nextfile $what.m3u8 | head -n1 | awk -F : '{print $2}' | tr -d ,`
+      attempts=$((attempts-1))
+    done
 
     # What we will call this file later
     time=`date "+%F-%H-%M-%S"`
@@ -51,15 +60,15 @@ while true; do
     totalLines="$(wc -l $what.m3u8 | awk '{print $1}')"
     
     sequence=0
-    if (( "$totalLines" > 240 )); then
-        sequence=`expr $totalLines - 240`
+    if (( "$totalLines" > ${HLS_LIST_SIZE} )); then
+        sequence=`expr $totalLines - ${HLS_LIST_SIZE}`
     fi
     echo "#EXTM3U" > current.m3u8
     echo "#EXT-X-VERSION:3" >> current.m3u8
     echo "#EXT-X-TARGETDURATION:15" >> current.m3u8
     echo "#EXT-X-MEDIA-SEQUENCE:$sequence" >> current.m3u8
 
-    tail -n 240 ~/process-stream.log | awk '{print "#EXTINF:"$5"\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
+    tail -n ${HLS_LIST_SIZE} ~/process-stream.log | awk '{print "#EXTINF:"$5"\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
 
     # IPNS publish
     m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
