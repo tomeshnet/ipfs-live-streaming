@@ -254,5 +254,6 @@ output "public_urls" {
     "HLS stream (mirror-N):   http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
     "Video player (origin):   http://${digitalocean_domain.ipfs-live-streaming.name}",
     "Video player (mirror-N): http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
+    "Video player (debug):    http://${digitalocean_domain.ipfs-live-streaming.name}?url=live.m3u8",
   ]
 }
