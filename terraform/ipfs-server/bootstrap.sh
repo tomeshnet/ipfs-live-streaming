@@ -27,7 +27,8 @@ apt install -y \
   inotify-tools \
   jq \
   lsof \
-  nginx
+  nginx \
+  bc
 
 # Create directory for generating client keys
 mkdir /root/client-keys
