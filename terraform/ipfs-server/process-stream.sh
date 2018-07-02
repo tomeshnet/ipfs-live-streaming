@@ -49,11 +49,11 @@ while true; do
     done
     
     # Calculate and store the offset needed if ffmpeg where to restart right now
-    currentOffset=$(ffprobe two 2>&1 | grep Duration | awk '{print $4}' | tr -d ',')
-    nextOffset=($echo "$offset + $timecode" |  bc)
-    echo $nextOffset > ~/stream-offset
+    currentOffset=$(ffprobe ${nextfile} 2>&1 | grep Duration | awk '{print $4}' | tr -d ',')
+    nextOffset=($echo "${offset} + ${timecode}" |  bc)
+    echo ${nextOffset} > ~/stream-offset
 
-    # What we will call this file later
+    # Current UTC date for the log
     time=`date "+%F-%H-%M-%S"`
 
     # Add ts file to IPFS
