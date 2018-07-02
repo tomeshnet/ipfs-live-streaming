@@ -50,7 +50,7 @@ while true; do
     
     # Calculate and store the offset needed if ffmpeg where to restart right now
     currentOffset=$(ffprobe ${nextfile} 2>&1 | grep Duration | awk '{print $4}' | tr -d ',')
-    nextOffset=($echo "${offset} + ${timecode}" |  bc)
+    nextOffset=($echo "${currentOffset} + ${timecode} - 2" |  bc)
     echo ${nextOffset} > ~/stream-offset
 
     # Current UTC date for the log
