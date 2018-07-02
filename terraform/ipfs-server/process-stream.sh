@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HLS_TIME=15
-HLS_LIST_SIZE=10
+M3U8_SIZE=10
 
 # Load settings
 . ~/settings
@@ -9,7 +9,7 @@ HLS_LIST_SIZE=10
 function startFFmpeg() {
   while true; do
     mv /var/log/ffmpeg /var/log/ffmpeg.1
-    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time ${HLS_TIME} -hls_list_size ${HLS_LIST_SIZE} -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
+    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time ${HLS_TIME} -hls_list_size 10 -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
     sleep 1
   done
 }
@@ -60,15 +60,15 @@ while true; do
     totalLines="$(wc -l ~/process-stream.log | awk '{print $1}')"
     
     sequence=0
-    if (( "${totalLines}" > ${HLS_LIST_SIZE} )); then
-        sequence=`expr ${totalLines} - ${HLS_LIST_SIZE}`
+    if (( "${totalLines}" > ${M3U8_SIZE} )); then
+        sequence=`expr ${totalLines} - ${M3U8_SIZE}`
     fi
     echo "#EXTM3U" > current.m3u8
     echo "#EXT-X-VERSION:3" >> current.m3u8
     echo "#EXT-X-TARGETDURATION:${HLS_TIME}" >> current.m3u8
     echo "#EXT-X-MEDIA-SEQUENCE:${sequence}" >> current.m3u8
 
-    tail -n ${HLS_LIST_SIZE} ~/process-stream.log | awk '{print "#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
+    tail -n ${M3U8_SIZE} ~/process-stream.log | awk '{print "#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
 
     # IPNS publish
     m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
