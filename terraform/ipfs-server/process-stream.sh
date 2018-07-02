@@ -9,7 +9,11 @@ M3U8_SIZE=10
 function startFFmpeg() {
   while true; do
     mv /var/log/ffmpeg /var/log/ffmpeg.1
-    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time ${HLS_TIME} -hls_list_size 10 -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
+    offset=0
+    if [ -f ~/stream-offset ]; then
+      offset=$(cat ~/stream-offset)
+    fi
+    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -output_ts_offset ${offset} -hls_time ${HLS_TIME} -hls_list_size 10 -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
     sleep 1
   done
 }
@@ -43,8 +47,13 @@ while true; do
       timecode=`grep -B1 ${nextfile} ${what}.m3u8 | head -n1 | awk -F : '{print $2}' | tr -d ,`
       attempts=$((attempts-1))
     done
+    
+    # Calculate and store the offset needed if ffmpeg where to restart right now
+    currentOffset=$(ffprobe ${nextfile} 2>&1 | grep Duration | awk '{print $4}' | tr -d ',')
+    nextOffset=$(echo "${currentOffset} + ${timecode}" |  bc)
+    echo ${nextOffset} > ~/stream-offset
 
-    # What we will call this file later
+    # Current UTC date for the log
     time=`date "+%F-%H-%M-%S"`
 
     # Add ts file to IPFS
@@ -67,7 +76,6 @@ while true; do
     echo "#EXT-X-VERSION:3" >> current.m3u8
     echo "#EXT-X-TARGETDURATION:${HLS_TIME}" >> current.m3u8
     echo "#EXT-X-MEDIA-SEQUENCE:${sequence}" >> current.m3u8
-
     tail -n ${M3U8_SIZE} ~/process-stream.log | awk '{print "#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
 
     # Add m3u8 file to IPFS
