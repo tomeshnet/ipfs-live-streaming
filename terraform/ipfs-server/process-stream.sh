@@ -9,7 +9,11 @@ M3U8_SIZE=10
 function startFFmpeg() {
   while true; do
     mv /var/log/ffmpeg /var/log/ffmpeg.1
-    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time ${HLS_TIME} -hls_list_size 10 -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
+    offset=0
+    if [ -z '~/stream-offset' ]; then
+      offset=$(cat ~/stream-offset)
+    fi
+    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -output_ts_offset ${offset} -hls_time ${HLS_TIME} -hls_list_size 10 -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
     sleep 1
   done
 }
@@ -43,6 +47,11 @@ while true; do
       timecode=`grep -B1 ${nextfile} ${what}.m3u8 | head -n1 | awk -F : '{print $2}' | tr -d ,`
       attempts=$((attempts-1))
     done
+    
+    # Calculate and store the offset needed if ffmpeg where to restart right now
+    currentOffset=$(ffprobe two 2>&1 | grep Duration | awk '{print $4}' | tr -d ',')
+    nextOffset=($echo "$offset + $timecode" |  bc)
+    echo $nextOffset > ~/stream-offset
 
     # What we will call this file later
     time=`date "+%F-%H-%M-%S"`
