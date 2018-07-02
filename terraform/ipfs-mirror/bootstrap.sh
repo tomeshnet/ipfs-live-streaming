@@ -2,7 +2,10 @@
 
 set -e
 
-IPFS_SERVER_IPFS_ID=$1
+IPFS_MIRROR_INSTANCE=$1
+DOMAIN_NAME=$2
+IPFS_SERVER_IPFS_ID=$3
+M3U8_HTTP_URLS=$4
 
 IPFS_VERSION=0.4.15
 
@@ -17,6 +20,11 @@ systemctl disable apt-daily.timer
 
 # Install Digital Ocean new metrics
 curl -sSL https://agent.digitalocean.com/install.sh | sh
+
+# Install programs
+apt update
+apt install -y \
+  nginx
 
 ########
 # IPFS #
@@ -51,3 +59,17 @@ cp -f /tmp/ipfs-mirror/ipfs-pin.service /etc/systemd/system/ipfs-pin.service
 systemctl daemon-reload
 systemctl enable ipfs-pin
 systemctl start ipfs-pin
+
+################
+# Video player #
+################
+
+# Install web video player
+rm -rf /var/www/html/*
+cp -r /tmp/video-player/* /var/www/html/
+
+# Configure video player
+sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-mirror-${IPFS_MIRROR_INSTANCE}.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
+sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
+sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_SERVER_IPFS_ID}#g" /var/www/html/common.js
+sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/common.js
