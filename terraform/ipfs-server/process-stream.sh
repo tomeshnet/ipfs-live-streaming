@@ -47,7 +47,7 @@ while true; do
     # What we will call this file later
     time=`date "+%F-%H-%M-%S"`
 
-    # Add the file to IPFS
+    # Add ts file to IPFS
     ipfs add ${nextfile} > ~/tmp.txt
     
     # Update the log with the future name (hash already there)
@@ -70,10 +70,12 @@ while true; do
 
     tail -n ${M3U8_SIZE} ~/process-stream.log | awk '{print "#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
 
-    # IPNS publish
+    # Add m3u8 file to IPFS
     m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
-    ipfs name publish --timeout=5s $m3u8hash &
+
+    # Copy files to web server
     cp current.m3u8 /var/www/html/live.m3u8
+    cp ~/process-stream.log /var/www/html/live.log
   else
     sleep 5
   fi
