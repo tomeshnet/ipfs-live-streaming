@@ -68,7 +68,7 @@ while true; do
     echo "#EXT-X-TARGETDURATION:15" >> current.m3u8
     echo "#EXT-X-MEDIA-SEQUENCE:$sequence" >> current.m3u8
 
-    tail -n ${HLS_LIST_SIZE} ~/process-stream.log | awk '{print "#EXTINF:"$5"\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
+    tail -n ${HLS_LIST_SIZE} ~/process-stream.log | awk '{print "#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
 
     # IPNS publish
     m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
