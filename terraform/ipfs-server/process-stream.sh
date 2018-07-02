@@ -50,7 +50,7 @@ while true; do
     
     # Calculate and store the offset needed if ffmpeg where to restart right now
     currentOffset=$(ffprobe ${nextfile} 2>&1 | grep Duration | awk '{print $4}' | tr -d ',')
-    nextOffset=($echo "${currentOffset} + ${timecode} - 2" |  bc)
+    nextOffset=$(echo "${currentOffset} + ${timecode} - 1" |  bc)
     echo ${nextOffset} > ~/stream-offset
 
     # Current UTC date for the log
@@ -76,7 +76,6 @@ while true; do
     echo "#EXT-X-VERSION:3" >> current.m3u8
     echo "#EXT-X-TARGETDURATION:${HLS_TIME}" >> current.m3u8
     echo "#EXT-X-MEDIA-SEQUENCE:${sequence}" >> current.m3u8
-
     tail -n ${M3U8_SIZE} ~/process-stream.log | awk '{print "#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
 
     # Add m3u8 file to IPFS
