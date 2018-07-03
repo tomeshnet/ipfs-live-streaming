@@ -10,7 +10,7 @@ function startFFmpeg() {
   while true; do
     mv /var/log/ffmpeg /var/log/ffmpeg.1
     echo 1 > ~/streamReset
-    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -output_ts_offset ${offset} -hls_time ${HLS_TIME} -hls_list_size 10 -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
+    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time ${HLS_TIME} -hls_list_size 10 -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
     sleep 1
   done
 }
