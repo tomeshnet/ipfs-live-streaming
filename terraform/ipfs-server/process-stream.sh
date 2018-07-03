@@ -9,10 +9,7 @@ M3U8_SIZE=10
 function startFFmpeg() {
   while true; do
     mv /var/log/ffmpeg /var/log/ffmpeg.1
-    offset=0
-    if [ -f ~/stream-offset ]; then
-      offset=$(cat ~/stream-offset)
-    fi
+    echo 1 > ~/streamReset
     ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -output_ts_offset ${offset} -hls_time ${HLS_TIME} -hls_list_size 10 -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
     sleep 1
   done
@@ -53,11 +50,13 @@ while true; do
       timecode="${HLS_TIME}.000000"
     fi
     
-    # Calculate and store the offset needed if ffmpeg where to restart right now
-    currentOffset=$(ffprobe ${nextfile} 2>&1 | grep Duration | awk '{print $4}' | tr -d ',')
-    nextOffset=$(echo "${currentOffset} + ${timecode}" | bc)
-    echo ${nextOffset} > ~/stream-offset
-
+    resetStream=$(cat ~/streamReset)
+    resetStreamMarker=''
+    if [ "$resetStream" == '1' ]; then
+      resetStreamMarker=" #EXT-X-DISCONTINUITY"
+    fi
+    
+    echo 0 > ~/streamReset
     # Current UTC date for the log
     time=`date "+%F-%H-%M-%S"`
 
@@ -72,7 +71,7 @@ while true; do
     done
     if [[ ${ret} -eq 0 ]]; then
       # Update the log with the future name (hash already there)
-      echo $(cat ~/tmp.txt) ${time}.ts ${timecode} >> ~/process-stream.log
+      echo $(cat ~/tmp.txt) ${time}.ts ${timecode}${resetStreamMarker} >> ~/process-stream.log
 
       # Remove nextfile and tmp.txt
       rm -f ${nextfile} ~/tmp.txt
@@ -88,7 +87,7 @@ while true; do
       echo "#EXT-X-VERSION:3" >> current.m3u8
       echo "#EXT-X-TARGETDURATION:${HLS_TIME}" >> current.m3u8
       echo "#EXT-X-MEDIA-SEQUENCE:${sequence}" >> current.m3u8
-      tail -n ${M3U8_SIZE} ~/process-stream.log | awk '{print "#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' >> current.m3u8
+      tail -n ${M3U8_SIZE} ~/process-stream.log | awk '{print $6"#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' | sed 's/#EXT-X-DISCONTINUITY#/#EXT-X-DISCONTINUITY\n#/' >> current.m3u8
 
       # Add m3u8 file to IPFS and IPNS publish (uncomment to enable)
       #m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
