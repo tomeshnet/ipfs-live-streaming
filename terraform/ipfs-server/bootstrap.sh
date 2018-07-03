@@ -23,12 +23,12 @@ curl -sSL https://agent.digitalocean.com/install.sh | sh
 # Install programs
 apt update
 apt install -y \
+  bc \
   ffmpeg \
   inotify-tools \
   jq \
   lsof \
-  nginx \
-  bc
+  nginx
 
 # Create directory for generating client keys
 mkdir /root/client-keys
@@ -58,6 +58,9 @@ until [[ `ipfs id >/dev/null 2>&1; echo $?` -eq 0 ]]; do
 done
 IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
 echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
+
+# Publish message to IPNS
+echo "Serving m3u8 over IPNS is currently disabled" | ipfs add | awk '{print $2}' | ipfs name publish
 
 ########################
 # Process video stream #
