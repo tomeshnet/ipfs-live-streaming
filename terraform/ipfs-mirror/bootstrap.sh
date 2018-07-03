@@ -52,7 +52,8 @@ systemctl start ipfs
 # Copy IPFS pin scripts
 cp -f /tmp/ipfs-mirror/ipfs-pin.sh /root/ipfs-pin.sh
 cp -f /tmp/ipfs-mirror/ipfs-pin-service.sh /root/ipfs-pin-service.sh
-sed -i "s#__IPFS_SERVER_IPFS_ID__#$IPFS_SERVER_IPFS_ID#" /root/ipfs-pin-service.sh
+sed -i "s#__DOMAIN_NAME__#${DOMAIN_NAME}#" /root/ipfs-pin-service.sh
+sed -i "s#__IPFS_SERVER_IPFS_ID__#${IPFS_SERVER_IPFS_ID}#" /root/ipfs-pin-service.sh
 
 # Install and start IPFS pin service
 cp -f /tmp/ipfs-mirror/ipfs-pin.service /etc/systemd/system/ipfs-pin.service
