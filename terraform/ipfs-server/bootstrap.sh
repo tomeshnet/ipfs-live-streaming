@@ -52,10 +52,13 @@ systemctl daemon-reload
 systemctl enable ipfs
 systemctl start ipfs
 
-# Write IPFS identity to client file
+# Wait for IPFS daemon to start
 until [[ `ipfs id >/dev/null 2>&1; echo $?` -eq 0 ]]; do
   sleep 1
 done
+sleep 15
+
+# Write IPFS identity to client file
 IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
 echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
 
