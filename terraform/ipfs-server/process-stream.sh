@@ -11,7 +11,7 @@ function startFFmpeg() {
     mv /var/log/ffmpeg /var/log/ffmpeg.1
     echo 1 > ~/stream-reset
     ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time ${HLS_TIME} -hls_list_size 10 -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
-    sleep 0.2
+    sleep 0.5
   done
 }
 
