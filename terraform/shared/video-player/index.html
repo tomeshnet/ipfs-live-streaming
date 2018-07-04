@@ -3,107 +3,41 @@
   <head>
     <title>IPFS Live Streaming</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="src/video-js.min.css" rel="stylesheet">
-    <link href="common.css" rel="stylesheet" type="text/css">
-    <script src="common.js"></script>
-    <script>
-      if (getQueryVariable("url")) {
-        m3u8_ipfs=getQueryVariable("url");
-      }
-      if (getQueryVariable("ipfs_gateway_self")) {
-        ipfs_gateway_self=getQueryVariable("ipfs_gateway_self");
-      }
-    </script>
+    <link href="css/video-js.min.css" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <video id="live" class="video-js vjs-default-skin vjs-big-play-centered" controls preload autoplay loop>
+    <video id="live" class="video-js vjs-default-skin vjs-big-play-centered" data-setup='{"fluid": true}' controls preload autoplay loop>
       <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video</p>
     </video>
-    <script src="src/video.js"></script> 
-    <script src="src/videojs-contrib-hls.js"></script> 
-    <div class="header" id="StreamSelecter">
-      <img src="images/logo.svg" id="logo" /><br>
-      <h1>Live Stream</h1>
+
+    <div class="stream-selector" id="StreamSelecter">
       <div id="SelectStream">
         <h2>Select Source</h2>
-        <div class="StreamOption">
-          <a href="#" onclick="ipfsStream(); return false;">IPFS<br>
-            <img src="images/ipfs-logo.png" width="153" height="173" alt="" /><br>
-          </a> 
-        </div>
-        <div class="StreamOption" id="clearStream">
-          <a href="#" onclick="httpStream(); return false;">HTTP<br>
-            <img src="images/internet.jpg" width="165" height="114" alt="" />
-          </a>
+        <div class="stream-selector-options">
+          <div id="ipfsStream">
+            <button class="stream-option ipfs-stream">IPFS<br>
+              <img src="images/ipfs-logo.png" width="100" height="114" alt="IPFS logo" />
+            </button>
+          </div>
+          <div id="clearStream">
+            <button class="stream-option clear-stream">HTTP<br>
+              <img src="images/internet.jpg" width="165" height="114" alt="Internet graphic" />
+            </button>
+          </div>
         </div>
       </div>
       <div id="LoadingStream" style="display:none;">
         <h2 id="loadingTitle">Locating stream...</h2>
         <div id="msg"></div>
         <center>
-          <img src="images/loading.gif" width="200"><br>
+          <img src="images/loading.gif" width="150" alt="Loading animated graphic"><br>
           This may take a few minutes
         </center>
       </div>
     </div>
 
-    <script>
-      var live = videojs('live');
-
-      function httpStream() {
-        live.src({
-          src: m3u8_http_urls[Math.floor(Math.random() * m3u8_http_urls.length)],
-          type: 'application/x-mpegURL',
-        });
-        loadStream();
-      }
-
-      function ipfsStream() {
-        live.src({
-          src: m3u8_ipfs,
-          type: 'application/x-mpegURL',
-        });
-        loadStream();
-        videojs.Hls.xhr.beforeRequest = function(options) {
-          // Replace IPFS gateway of origin with that of this node
-          options.uri = options.uri.replace(ipfs_gateway_origin, ipfs_gateway_self);
-          if (options.uri.indexOf("/ipfs/")) {
-            document.getElementById("loadingTitle").innerHTML="Located stream via IPNS"
-            document.getElementById("msg").innerHTML="Downloading video content..."
-          }
-          console.debug(options.uri);
-          return options;
-        };
-      }
-
-      function loadStream() {
-        document.getElementById("LoadingStream").style.display = "block";
-        document.getElementById("SelectStream").style.display="none";
-      }
-
-      live.metadata="none";
-
-      live.on('loadedmetadata', function() {
-        document.getElementById("StreamSelecter").style.display = "none";
-      });
-      
-      live.on('loadeddata', function(event) {
-        console.debug(event);
-      });
-      
-      live.on('error', function(event) {
-        console.debug(this.error());
-        document.getElementById("msg").innerHTML=this.error().message;
-      });
-
-      if (!m3u8_http_urls || !Array.isArray(m3u8_http_urls) || (m3u8_http_urls.length==0)) {
-        document.getElementById("clearStream").style.display="none";
-      }
-    </script>
-    <style>
-    .video-js .vjs-control {
-      width: 3em;
-    }
-    </style>
+    <script src="js/vendor/video.min.js"></script>
+    <script src="js/common.js"></script>
   </body>
 </html>
