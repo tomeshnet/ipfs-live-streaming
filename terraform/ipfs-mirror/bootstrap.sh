@@ -74,3 +74,7 @@ sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-mirror-${IPFS_MIRROR_INSTANCE}.${DOM
 sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_SERVER_IPFS_ID}#g" /var/www/html/js/common.js
 sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
+
+# Configure nginx
+cp -f /tmp/ipfs-mirror/default /etc/nginx/sites-available/default
+systemctl restart nginx.service
