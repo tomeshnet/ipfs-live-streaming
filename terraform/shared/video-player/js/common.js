@@ -58,12 +58,12 @@ function loadStream() {
   document.getElementById("SelectStream").style.display="none";
 }
 
-document.querySelector('.stream-option').addEventListener('click', function(event){
-  if (event.currentTarget.classList.contains('ipfs-stream')) {
+document.querySelector('.ipfs-stream').addEventListener('click', function(event){
     ipfsStream();
-  } else {
+});
+
+document.querySelector('.http-stream').addEventListener('click', function(event){
     httpStream();
-  }
 });
 
 live.metadata="none";
@@ -82,5 +82,5 @@ live.on('error', function(event) {
 });
 
 if (!m3u8_http_urls || !Array.isArray(m3u8_http_urls) || (m3u8_http_urls.length==0)) {
-  document.getElementById("clearStream").style.display="none";
+  document.getElementById("httpStream").style.display="none";
 }
