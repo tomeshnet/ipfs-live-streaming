@@ -14,6 +14,8 @@ body {
 }
 
 h2 {
+  margin-top: 0;
+  margin-bottom: 0.35em;
   font-weight: normal;
 }
 
