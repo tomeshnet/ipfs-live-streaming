@@ -1,4 +1,4 @@
-html, body, .video-unavailable {
+html, body {
   width: 100% !important;
   height: 100% !important;
   overflow: hidden;
@@ -15,44 +15,12 @@ h2 {
   font-weight: normal;
 }
 
-#live {
-  height: 100%;
-  width: 100%;
-  display: block;
-}
-
-/* Stream Select Buttons */
-
-button {
-  display: inline-flex;
-  align-items: baseline;
-  padding: 1em 2em 0.85em;
-  color: #555;
-  text-align: center;
-  font-family: $base-font-family;
-  font-weight: normal;
-  text-decoration: none;
-  white-space: nowrap;
-  background-color: transparent;
-  border: 1px solid #bbb;
-  cursor: pointer;
-  line-height: 1em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transition: background 200ms ease-in-out, border-color 200ms ease-in-out;
-}
-
-button:hover,
-button:focus {
-  color: #333;
-  border-color: #888;
-  text-decoration: none;
-}
-
 /* Live Stream Container */
 
 .stream-container {
   position: relative;
+  min-height: 350px;
+  margin-bottom: 1em;
 }
 
 .stream-selector {
@@ -78,4 +46,38 @@ button:focus {
   justify-content: center;
   align-items: center;
   margin: 0 10px;
+  padding: 0.75em;
+  border-width: 0;
+
+  &:hover,
+  &:focus {
+    border-color: #000000;
+
+    svg {
+      filter: none;
+    }
+  }
+
+  svg {
+    pointer-events: none;
+    width: 130px;
+    transition: 200ms filter ease-in-out;
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+  }
+}
+
+.stream-message {
+  margin: 0 auto;
+  max-width: 75%;
+  font-size: 0.85em;
+}
+
+.button-label {
+  color: #000000;
+  margin-top: 1em;
+}
+
+#loadingTitle {
+  margin-top: 0;
 }

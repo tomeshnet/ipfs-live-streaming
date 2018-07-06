@@ -53,10 +53,11 @@ systemctl enable ipfs
 systemctl start ipfs
 
 # Wait for IPFS daemon to start
+sleep 10
 until [[ `ipfs id >/dev/null 2>&1; echo $?` -eq 0 ]]; do
   sleep 1
 done
-sleep 15
+sleep 10
 
 # Write IPFS identity to client file
 IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
