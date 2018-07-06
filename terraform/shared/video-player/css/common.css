@@ -25,6 +25,7 @@ h2 {
   position: relative;
   min-height: 350px;
   margin-bottom: 1em;
+  height: 100%;
 }
 
 .stream-selector {
@@ -57,6 +58,7 @@ h2 {
   padding: 0.75em;
   border-width: 0;
   font-size: 16px;
+  background: transparent;
 }
 
 .stream-option:hover,
@@ -92,4 +94,8 @@ h2 {
 #loadingTitle {
   font-weight: normal;
   margin-top: 0;
+}
+
+#live {
+  height: 100%;
 }
