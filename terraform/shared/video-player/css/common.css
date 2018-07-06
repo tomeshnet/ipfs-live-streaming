@@ -1,9 +1,11 @@
-html, body, .video-unavailable {
+html, body {
   width: 100% !important;
   height: 100% !important;
   overflow: hidden;
   margin: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -12,47 +14,17 @@ body {
 }
 
 h2 {
+  margin-top: 0;
+  margin-bottom: 0.35em;
   font-weight: normal;
-}
-
-#live {
-  height: 100%;
-  width: 100%;
-  display: block;
-}
-
-/* Stream Select Buttons */
-
-button {
-  display: inline-flex;
-  align-items: baseline;
-  padding: 1em 2em 0.85em;
-  color: #555;
-  text-align: center;
-  font-family: $base-font-family;
-  font-weight: normal;
-  text-decoration: none;
-  white-space: nowrap;
-  background-color: transparent;
-  border: 1px solid #bbb;
-  cursor: pointer;
-  line-height: 1em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transition: background 200ms ease-in-out, border-color 200ms ease-in-out;
-}
-
-button:hover,
-button:focus {
-  color: #333;
-  border-color: #888;
-  text-decoration: none;
 }
 
 /* Live Stream Container */
 
 .stream-container {
   position: relative;
+  min-height: 350px;
+  margin-bottom: 1em;
 }
 
 .stream-selector {
@@ -71,11 +43,53 @@ button:focus {
 
 .stream-selector-options {
   display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .stream-option {
+  cursor: pointer;
+  display: inline-flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: 0 10px;
+  padding: 0.75em;
+  border-width: 0;
+  font-size: 16px;
+}
+
+.stream-option:hover,
+.stream-option:focus {
+  border-color: #000000;
+}
+
+.stream-option:hover .stream-option-graphic,
+.stream-option:focus .stream-option-graphic {
+  -webkit-filter: none;
+  filter: none;
+} 
+
+.stream-option-graphic {
+  pointer-events: none;
+  width: 130px;
+  transition: 200ms filter ease-in-out;
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+}
+
+.stream-message {
+  margin: 0 auto;
+  max-width: 75%;
+  font-size: 0.85em;
+}
+
+.button-label {
+  color: #000000;
+  margin-top: 1em;
+}
+
+#loadingTitle {
+  font-weight: normal;
+  margin-top: 0;
 }

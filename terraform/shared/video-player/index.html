@@ -7,33 +7,34 @@
     <link href="css/common.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <video id="live" class="video-js vjs-default-skin vjs-big-play-centered" data-setup='{"fluid": true}' controls preload autoplay loop>
-      <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video</p>
-    </video>
+    <div class="stream-container">
+      <video id="live" class="video-js vjs-default-skin vjs-big-play-centered" data-setup='{"fluid": true}' controls preload autoplay loop>
+        <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video</p>
+      </video>
 
-    <div class="stream-selector" id="StreamSelecter">
-      <div id="SelectStream">
-        <h2>Select Source</h2>
-        <div class="stream-selector-options">
-          <div id="ipfsStream">
-            <button class="stream-option ipfs-stream">IPFS<br>
-              <img src="images/ipfs-logo.png" width="100" height="114" alt="IPFS logo" />
-            </button>
-          </div>
-          <div id="httpStream">
-            <button class="stream-option http-stream">HTTP<br>
-              <img src="images/internet.jpg" width="165" height="114" alt="Internet graphic" />
-            </button>
+      <div class="stream-selector" id="StreamSelector">
+        <div id="SelectStream">
+          <h2>Select Live Stream Source</h2>
+          <div class="stream-selector-options">
+            <div id="ipfsStream">
+              <button class="stream-option ipfs-stream" title="Play the live stream on through a peer-to-peer hypermedia protocol. More at ipfs.io">
+                <img class="stream-option-graphic" src="graphics/ipfs-icon.svg" alt="IPFS graphic" />
+                <span class="button-label">IPFS</span>
+              </button>
+            </div>
+            <div id="httpStream">
+              <button class="stream-option http-stream" title="Play the live stream on through a media server over HTTP.">
+                <img class="stream-option-graphic" src="graphics/http-icon.svg" alt="Media server graphic" />
+                <span class="button-label">HTTP</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div id="LoadingStream" style="display:none;">
-        <h2 id="loadingTitle">Locating stream...</h2>
-        <div id="msg"></div>
-        <center>
-          <img src="images/loading.gif" width="150" alt="Loading animated graphic"><br>
-          This may take a few minutes
-        </center>
+        <div id="LoadingStream" style="display:none;">
+          <img class="loader-animation" src="graphics/loader-animation.svg" alt="Animated loading graphic" />
+          <h3 id="loadingTitle">Locating stream...</h3>
+          <div class="stream-message" id="msg"></div>
+        </div>
       </div>
     </div>
 

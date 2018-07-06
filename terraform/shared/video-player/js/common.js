@@ -45,7 +45,7 @@ function ipfsStream() {
     // Replace IPFS gateway of origin with that of this node
     options.uri = options.uri.replace(ipfs_gateway_origin, ipfs_gateway_self);
     if (options.uri.indexOf("/ipfs/")) {
-      document.getElementById("loadingTitle").innerHTML="Located stream via IPNS"
+      document.getElementById("loadingTitle").innerHTML="Located stream via IPFS"
       document.getElementById("msg").innerHTML="Downloading video content..."
     }
     console.debug(options.uri);
@@ -59,17 +59,17 @@ function loadStream() {
 }
 
 document.querySelector('.ipfs-stream').addEventListener('click', function(event){
-    ipfsStream();
+  ipfsStream();
 });
 
 document.querySelector('.http-stream').addEventListener('click', function(event){
-    httpStream();
+  httpStream();
 });
 
 live.metadata="none";
 
 live.on('loadedmetadata', function() {
-  document.getElementById("StreamSelecter").style.display = "none";
+  document.getElementById("StreamSelector").style.display = "none";
 });
 
 live.on('loadeddata', function(event) {
@@ -78,9 +78,11 @@ live.on('loadeddata', function(event) {
 
 live.on('error', function(event) {
   console.debug(this.error());
-  document.getElementById("msg").innerHTML=this.error().message;
+  document.getElementById('loadingTitle').innerHTML = 'Unable to load live stream'
+  document.querySelector('.loader-animation').style.display = 'none';
+  document.getElementById('msg').innerHTML = this.error().message;
 });
 
 if (!m3u8_http_urls || !Array.isArray(m3u8_http_urls) || (m3u8_http_urls.length==0)) {
-  document.getElementById("httpStream").style.display="none";
+  document.getElementById('httpStream').style.display = 'none';
 }
