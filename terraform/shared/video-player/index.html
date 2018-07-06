@@ -18,20 +18,20 @@
           <div class="stream-selector-options">
             <div id="ipfsStream">
               <button class="stream-option ipfs-stream" title="Play the live stream on through a peer-to-peer hypermedia protocol. More at ipfs.io">
-                <object data="graphics/ipfs-icon.svg" type="image/svg+xml"></object>
+                <img class="stream-option-graphic" src="graphics/ipfs-icon.svg" alt="IPFS graphic" />
                 <span class="button-label">IPFS</span>
               </button>
             </div>
             <div id="httpStream">
               <button class="stream-option http-stream" title="Play the live stream on through a media server over HTTP.">
-                <object data="graphics/http-icon.svg" type="image/svg+xml"></object>
+                <img class="stream-option-graphic" src="graphics/http-icon.svg" alt="Media server graphic" />
                 <span class="button-label">HTTP</span>
               </button>
             </div>
           </div>
         </div>
         <div id="LoadingStream" style="display:none;">
-          <object data="graphics/loader-animation.svg" type="image/svg+xml"></object>
+          <img class="loader-animation" src="graphics/loader-animation.svg" alt="Animated loading graphic" />
           <h3 id="loadingTitle">Locating stream...</h3>
           <div class="stream-message" id="msg"></div>
         </div>

@@ -4,6 +4,8 @@ html, body {
   overflow: hidden;
   margin: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -44,29 +46,34 @@ h2 {
 }
 
 .stream-option {
+  cursor: pointer;
+  display: inline-flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin: 0 10px;
   padding: 0.75em;
   border-width: 0;
+  font-size: 16px;
+}
 
-  &:hover,
-  &:focus {
-    border-color: #000000;
+.stream-option:hover,
+.stream-option:focus {
+  border-color: #000000;
+}
 
-    svg {
-      filter: none;
-    }
-  }
+.stream-option:hover .stream-option-graphic,
+.stream-option:focus .stream-option-graphic {
+  -webkit-filter: none;
+  filter: none;
+} 
 
-  svg {
-    pointer-events: none;
-    width: 130px;
-    transition: 200ms filter ease-in-out;
-    -webkit-filter: grayscale(100%);
-    filter: grayscale(100%);
-  }
+.stream-option-graphic {
+  pointer-events: none;
+  width: 130px;
+  transition: 200ms filter ease-in-out;
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
 }
 
 .stream-message {
@@ -81,5 +88,6 @@ h2 {
 }
 
 #loadingTitle {
+  font-weight: normal;
   margin-top: 0;
 }
