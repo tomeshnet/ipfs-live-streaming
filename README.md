@@ -213,3 +213,7 @@ installed on your local machine, which can be the same device running OBS Studio
     servers with:
 
         terraform destroy
+
+## Attribution
+
+The video player uses code from [Video.js](https://videojs.com) and graphics from [ipfs/artwork](https://github.com/ipfs/artwork).
