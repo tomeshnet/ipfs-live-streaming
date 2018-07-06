@@ -216,4 +216,4 @@ installed on your local machine, which can be the same device running OBS Studio
 
 ## Attribution
 
-The video player uses code from [Video.js](https://videojs.com) and graphics from [ipfs/artwork](https://github.com/ipfs/artwork).
+The video player uses code from [Video.js](https://videojs.com), graphics from [ipfs/artwork](https://github.com/ipfs/artwork), and loading animation from [jxnblk/loading](https://github.com/jxnblk/loading).
