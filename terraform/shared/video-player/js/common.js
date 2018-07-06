@@ -84,5 +84,5 @@ live.on('error', function(event) {
 });
 
 if (!m3u8_http_urls || !Array.isArray(m3u8_http_urls) || (m3u8_http_urls.length==0)) {
-  document.getElementById('httpStream').style.display = 'none';
+  document.querySelector('.http-stream').setAttribute('disabled', 'disabled');
 }

@@ -61,9 +61,25 @@ h2 {
   background: transparent;
 }
 
-.stream-option:hover,
-.stream-option:focus {
-  border-color: #000000;
+.stream-option[disabled] {
+  opacity: 0.25;
+}
+
+.stream-option[disabled] .stream-option-graphic,
+.stream-option[disabled]:hover .stream-option-graphic,
+.stream-option[disabled]:focus .stream-option-graphic {
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+}
+
+.stream-option[disabled]:hover .button-label,
+.stream-option[disabled]:focus .button-label {
+  text-decoration: none;
+}
+
+.stream-option:hover .button-label,
+.stream-option:focus .button-label {
+  text-decoration: underline;
 }
 
 .stream-option:hover .stream-option-graphic,
@@ -75,9 +91,6 @@ h2 {
 .stream-option-graphic {
   pointer-events: none;
   width: 130px;
-  transition: 200ms filter ease-in-out;
-  -webkit-filter: grayscale(100%);
-  filter: grayscale(100%);
 }
 
 .stream-message {
