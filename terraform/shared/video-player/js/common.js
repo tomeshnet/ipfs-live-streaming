@@ -88,6 +88,6 @@ live.on('error', function(event) {
   document.getElementById('msg').innerHTML = this.error().message;
 });
 
-if (!m3u8_http_urls || !Array.isArray(m3u8_http_urls) || (m3u8_http_urls.length==0)) {
+if (!m3u8_http_urls || !Array.isArray(m3u8_http_urls) || (m3u8_http_urls.length == 0)) {
   document.querySelector('.http-stream').setAttribute('disabled', 'disabled');
 }
