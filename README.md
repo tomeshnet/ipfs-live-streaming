@@ -1,6 +1,8 @@
 IPFS Live Streaming
 ===================
 
+![Screenshot](screenshot.png?raw=true)
+
 This project is started by [@ASoTNetworks](https://github.com/ASoTNetworks) and
 [@darkdrgn2k](https://github.com/darkdrgn2k) to stream videos over IPFS, which
 overlapped with the need to live stream the [Our Networks 2018](https://ournetworks.ca)
@@ -180,9 +182,16 @@ installed on your local machine, which can be the same device running OBS Studio
         terraform apply
 
     By default, this will create one instance of each server type. You may choose to create
-    multiple instances of `ipfs-mirror` by overriding the `mirror` variable. For example:
+    multiple instances of `ipfs-mirror` by overriding the `mirror` variable.
 
-        terraform apply -var "mirror=2"
+    You may also choose to include an external HTTP (non-IPFS) stream source by adding one or
+    more URLs to a m3u8 playlist.
+
+    For example:
+
+        terraform apply \
+          -var "mirror=2" \
+          -var "m3u8_http_urls=\'http://HLS_SOURCE_0/live.m3u8\',\'http://HLS_SOURCE_1/live.m3u8\'"
 
     From your browser, login to your Digital Ocean dashboard and find your new VMs tagged
     with `ipfs-live-streaming`.
@@ -213,3 +222,7 @@ installed on your local machine, which can be the same device running OBS Studio
     servers with:
 
         terraform destroy
+
+## Attribution
+
+The video player uses code from [Video.js](https://videojs.com), graphics from [ipfs/artwork](https://github.com/ipfs/artwork), and loading animation from [jxnblk/loading](https://github.com/jxnblk/loading).

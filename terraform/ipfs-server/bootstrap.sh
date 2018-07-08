@@ -53,10 +53,11 @@ systemctl enable ipfs
 systemctl start ipfs
 
 # Wait for IPFS daemon to start
+sleep 10
 until [[ `ipfs id >/dev/null 2>&1; echo $?` -eq 0 ]]; do
   sleep 1
 done
-sleep 15
+sleep 10
 
 # Write IPFS identity to client file
 IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
@@ -95,7 +96,11 @@ rm -rf /var/www/html/*
 cp -r /tmp/video-player/* /var/www/html/
 
 # Configure video player
-sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
-sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/common.js
-sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/common.js
-sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/common.js
+sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/js/common.js
+sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
+
+# Configure nginx
+cp -f /tmp/ipfs-server/default /etc/nginx/sites-available/default
+systemctl restart nginx.service
