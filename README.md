@@ -11,16 +11,6 @@ to run live streams throughout the conference and archive the video assets on th
 IPFS network, that is suitable for a small conference with an audience size of less
 than 100 people.
 
-## Planning Calls
-
-| Date    | Time              |
-|:--------|:------------------|
-| June 11 | 7:00  -  8:00 p.m.|
-| June 25 | 10:00 - 11:00 p.m.|
-| July 9  | 7:00  -  8:00 p.m.|
-
-Location: [appear.in/ournetworks](https://appear.in/ournetworks)
-
 ## Set Up
 
 We will record live streams in 720p (3 Mbps) and archive mp4 of each talk in 1080p.
