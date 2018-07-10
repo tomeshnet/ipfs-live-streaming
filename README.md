@@ -216,3 +216,35 @@ installed on your local machine, which can be the same device running OBS Studio
 ## Attribution
 
 The video player uses code from [Video.js](https://videojs.com), graphics from [ipfs/artwork](https://github.com/ipfs/artwork), and loading animation from [jxnblk/loading](https://github.com/jxnblk/loading).
+
+## HLS player parameters 
+
+The HLS player can take some advanced parameters  passed through it via a query string. 
+
+*url* 
+
+By passing `url` you can specify a custom m3u8 file to play instead of the default live.m3u8
+
+For example
+
+```
+http://yourdomain/?gw=http://somewebsite/myfile.m3u8
+```
+
+*gw*
+
+By passing `gw` the player will redirect all requests from its default gateway to a different  gateway
+
+For example 
+
+To use IPFS.IO's gateway pass
+
+```
+http://yourdomain/?gw=http://ips.io/ipfs/
+```
+
+or to use your local gateway pass
+
+```
+?gw=http://127.0.0.1:8080/ipfs/
+```
