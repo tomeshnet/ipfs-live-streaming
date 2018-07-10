@@ -21,8 +21,10 @@ if (getQueryVariable("url")) {
   m3u8_ipfs = getQueryVariable("url");
 }
 
-if (getQueryVariable("ipfs_gateway_self")) {
-  ipfs_gateway_self = getQueryVariable("ipfs_gateway_self");
+var autoplay=0;
+if (getQueryVariable("gw")) {
+  ipfs_gateway_self = getQueryVariable("gw");
+  autoplay=1;
 }
 
 var live = videojs('live');
@@ -93,4 +95,8 @@ live.on('error', function(event) {
 
 if (!m3u8_http_urls || !Array.isArray(m3u8_http_urls) || (m3u8_http_urls.length == 0)) {
   document.querySelector('.http-stream').setAttribute('disabled', 'disabled');
+}
+
+if (autoplay) {
+  ipfsStream();
 }
