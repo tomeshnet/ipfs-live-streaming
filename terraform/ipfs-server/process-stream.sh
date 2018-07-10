@@ -50,10 +50,10 @@ while true; do
       timecode="${HLS_TIME}.000000"
     fi
     
-    reset-stream=$(cat ~/stream-reset)
-    reset-stream-marker=''
-    if [[ ${reset-stream} -eq '1' ]]; then
-      reset-stream-marker=" #EXT-X-DISCONTINUITY"
+    reset_stream=$(cat ~/stream-reset)
+    reset_stream_marker=''
+    if [[ ${reset_stream} -eq '1' ]]; then
+      reset_stream_marker=" #EXT-X-DISCONTINUITY"
     fi
     
     echo 0 > ~/stream-reset
@@ -71,7 +71,7 @@ while true; do
     done
     if [[ ${ret} -eq 0 ]]; then
       # Update the log with the future name (hash already there)
-      echo $(cat ~/tmp.txt) ${time}.ts ${timecode}${reset-stream-marker} >> ~/process-stream.log
+      echo $(cat ~/tmp.txt) ${time}.ts ${timecode}${reset_stream_marker} >> ~/process-stream.log
 
       # Remove nextfile and tmp.txt
       rm -f ${nextfile} ~/tmp.txt
