@@ -4,8 +4,9 @@ set -e
 
 IPFS_MIRROR_INSTANCE=$1
 DOMAIN_NAME=$2
-IPFS_SERVER_IPFS_ID=$3
-M3U8_HTTP_URLS=$4
+EMAIL_ADDRESS=$3
+IPFS_SERVER_IPFS_ID=$4
+M3U8_HTTP_URLS=$5
 
 IPFS_VERSION=0.4.15
 
@@ -24,6 +25,7 @@ curl -sSL https://agent.digitalocean.com/install.sh | sh
 # Install programs
 apt update
 apt install -y \
+  certbot \
   nginx
 
 ########
@@ -76,5 +78,13 @@ sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_SERVER_IPFS_ID}#g" /var/www/html/js/common.j
 sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
 
 # Configure nginx
-cp -f /tmp/ipfs-mirror/default /etc/nginx/sites-available/default
+cp -f /tmp/ipfs-server/default /etc/nginx/sites-available/default
+sed -i "s#__DOMAIN_NAME__#${DOMAIN_NAME}#g" /etc/nginx/sites-available/default
+
+# Configure letsencrypt with certbot
+openssl dhparam –out /etc/ssl/certs/dhparam.pem 2048
+certbot certonly -n --agree-tos --standalone --email "${EMAIL_ADDRESS}" -d "${DOMAIN_NAME}" -d "ipfs-mirror-${IPFS_MIRROR_INSTANCE}.${DOMAIN_NAME}"
+echo "30 2 * * 1 certbot renew >> /var/log/letsencrypt/letsencrypt.log" >> /etc/crontab
+echo "35 2 * * 1 systemctl reload nginx" >> /etc/crontab
+
 systemctl restart nginx.service

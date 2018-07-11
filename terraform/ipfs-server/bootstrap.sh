@@ -3,8 +3,9 @@
 set -e
 
 DOMAIN_NAME=$1
-RTMP_SERVER_PRIVATE_IP=$2
-M3U8_HTTP_URLS=$3
+EMAIL_ADDRESS=$2
+RTMP_SERVER_PRIVATE_IP=$3
+M3U8_HTTP_URLS=$4
 
 IPFS_VERSION=0.4.15
 
@@ -24,6 +25,7 @@ curl -sSL https://agent.digitalocean.com/install.sh | sh
 apt update
 apt install -y \
   bc \
+  certbot \
   ffmpeg \
   inotify-tools \
   jq \
@@ -103,4 +105,12 @@ sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
 
 # Configure nginx
 cp -f /tmp/ipfs-server/default /etc/nginx/sites-available/default
+sed -i "s#__DOMAIN_NAME__#${DOMAIN_NAME}#g" /etc/nginx/sites-available/default
+
+# Configure letsencrypt with certbot
+openssl dhparam –out /etc/ssl/certs/dhparam.pem 2048
+certbot certonly -n --agree-tos --standalone --email "${EMAIL_ADDRESS}" -d "${DOMAIN_NAME}" -d "ipfs-server.${DOMAIN_NAME}"
+echo "30 2 * * 1 certbot renew >> /var/log/letsencrypt/letsencrypt.log" >> /etc/crontab
+echo "35 2 * * 1 systemctl reload nginx" >> /etc/crontab
+
 systemctl restart nginx.service
