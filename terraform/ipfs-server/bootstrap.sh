@@ -109,7 +109,7 @@ sed -i "s#__DOMAIN_NAME__#${DOMAIN_NAME}#g" /etc/nginx/sites-available/default
 
 # Configure letsencrypt with certbot
 openssl dhparam –out /etc/ssl/certs/dhparam.pem 2048
-certbot certonly -n --agree-tos --standalone --email "${EMAIL_ADDRESS}" -d "${DOMAIN_NAME}" -d "ipfs-server.${DOMAIN_NAME}"
+#certbot certonly -n --agree-tos --standalone --email "${EMAIL_ADDRESS}" -d "${DOMAIN_NAME}" -d "ipfs-server.${DOMAIN_NAME}"
 echo "30 2 * * 1 certbot renew >> /var/log/letsencrypt/letsencrypt.log" >> /etc/crontab
 echo "35 2 * * 1 systemctl reload nginx" >> /etc/crontab
 
