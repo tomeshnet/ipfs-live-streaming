@@ -70,8 +70,8 @@ rm -rf /var/www/html/*
 cp -r /tmp/video-player/* /var/www/html/
 
 # Configure video player
-sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-mirror-${IPFS_MIRROR_INSTANCE}.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
-sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-mirror-${IPFS_MIRROR_INSTANCE}.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_ORIGIN__#https://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_SERVER_IPFS_ID}#g" /var/www/html/js/common.js
 sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
 

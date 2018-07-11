@@ -181,7 +181,7 @@ installed on your local machine, which can be the same device running OBS Studio
 
         terraform apply \
           -var "mirror=2" \
-          -var "m3u8_http_urls=\'http://HLS_SOURCE_0/live.m3u8\',\'http://HLS_SOURCE_1/live.m3u8\'"
+          -var "m3u8_http_urls=\'https://HLS_SOURCE_0/live.m3u8\',\'https://HLS_SOURCE_1/live.m3u8\'"
 
     From your browser, login to your Digital Ocean dashboard and find your new VMs tagged
     with `ipfs-live-streaming`.

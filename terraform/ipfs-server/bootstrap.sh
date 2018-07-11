@@ -78,7 +78,7 @@ echo "#!/bin/sh" > ~/settings
 echo "export DOMAIN_NAME=\"${DOMAIN_NAME}\"" >> ~/settings
 echo "export RTMP_SERVER_PRIVATE_IP=\"${RTMP_SERVER_PRIVATE_IP}\"" >> ~/settings
 echo "export RTMP_STREAM=\"rtmp://${RTMP_SERVER_PRIVATE_IP}/live\"" >> ~/settings
-echo "export IPFS_GATEWAY=\"http://ipfs-server.${DOMAIN_NAME}:8080\"" >> ~/settings
+echo "export IPFS_GATEWAY=\"https://ipfs-server.${DOMAIN_NAME}:8080\"" >> ~/settings
 chmod +x ~/settings
 
 # Install and start process-stream service
@@ -96,8 +96,8 @@ rm -rf /var/www/html/*
 cp -r /tmp/video-player/* /var/www/html/
 
 # Configure video player
-sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
-sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_ORIGIN__#https://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/js/common.js
 sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
 

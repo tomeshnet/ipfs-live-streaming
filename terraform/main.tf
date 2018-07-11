@@ -250,12 +250,12 @@ output "public_urls" {
   depends_on = ["digitalocean_record.*"]
   value      = [
     "RTMP stream:                rtmp://${digitalocean_record.rtmp-server.fqdn}/live",
-    "HLS stream (origin):        http://${digitalocean_domain.ipfs-live-streaming.name}/live.m3u8",
-    "HLS stream (mirror-N):      http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}/live.m3u8",
-    "IPNS HLS stream (origin):   http://${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
-    "IPNS HLS stream (mirror-N): http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
-    "Video player (origin):      http://${digitalocean_domain.ipfs-live-streaming.name}",
-    "Video player (mirror-N):    http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
-    "Video player (debug):       http://${digitalocean_domain.ipfs-live-streaming.name}?url=live.m3u8",
+    "HLS stream (origin):        https://${digitalocean_domain.ipfs-live-streaming.name}/live.m3u8",
+    "HLS stream (mirror-N):      https://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}/live.m3u8",
+    "IPNS HLS stream (origin):   https://${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
+    "IPNS HLS stream (mirror-N): https://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
+    "Video player (origin):      https://${digitalocean_domain.ipfs-live-streaming.name}",
+    "Video player (mirror-N):    https://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
+    "Video player (debug):       https://${digitalocean_domain.ipfs-live-streaming.name}?url=live.m3u8",
   ]
 }
