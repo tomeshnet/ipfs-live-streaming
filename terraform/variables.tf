@@ -1,7 +1,7 @@
 variable "domain_name" {
   default = ".keys/domain_name"
 }
-variable "email" {
+variable "email_address" {
   default = ".keys/email_address"
 }
 variable "do_token" {
