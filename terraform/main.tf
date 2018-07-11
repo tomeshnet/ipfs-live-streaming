@@ -173,7 +173,7 @@ resource "digitalocean_droplet" "ipfs-mirror" {
       "chmod +x /tmp/ipfs-mirror/bootstrap.sh",
       "chmod +x /tmp/ipfs-mirror/ipfs-pin.sh",
       "chmod +x /tmp/ipfs-mirror/ipfs-pin-service.sh",
-      "/tmp/ipfs-mirror/bootstrap.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address) ${file(".keys/ipfs_id")} ${var.m3u8_http_urls}",
+      "/tmp/ipfs-mirror/bootstrap.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address)} ${file(".keys/ipfs_id")} ${var.m3u8_http_urls}",
     ]
   }
 }
