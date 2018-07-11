@@ -80,7 +80,7 @@ echo "#!/bin/sh" > ~/settings
 echo "export DOMAIN_NAME=\"${DOMAIN_NAME}\"" >> ~/settings
 echo "export RTMP_SERVER_PRIVATE_IP=\"${RTMP_SERVER_PRIVATE_IP}\"" >> ~/settings
 echo "export RTMP_STREAM=\"rtmp://${RTMP_SERVER_PRIVATE_IP}/live\"" >> ~/settings
-echo "export IPFS_GATEWAY=\"https://ipfs-server.${DOMAIN_NAME}:8080\"" >> ~/settings
+echo "export IPFS_GATEWAY=\"http://ipfs-server.${DOMAIN_NAME}:8080\"" >> ~/settings
 chmod +x ~/settings
 
 # Install and start process-stream service
@@ -98,19 +98,20 @@ rm -rf /var/www/html/*
 cp -r /tmp/video-player/* /var/www/html/
 
 # Configure video player
-sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
-sed -i "s#__IPFS_GATEWAY_ORIGIN__#https://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/js/common.js
 sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
 
 # Configure nginx
-cp -f /tmp/ipfs-server/default /etc/nginx/sites-available/default
-sed -i "s#__DOMAIN_NAME__#${DOMAIN_NAME}#g" /etc/nginx/sites-available/default
+cp -f /tmp/ipfs-server/default-no-ssl /etc/nginx/sites-available/default
+systemctl restart nginx.service
+
+#sed -i "s#__DOMAIN_NAME__#${DOMAIN_NAME}#g" /etc/nginx/sites-available/default
 
 # Configure letsencrypt with certbot
-openssl dhparam –out /etc/ssl/certs/dhparam.pem 2048
+#openssl dhparam –out /etc/ssl/certs/dhparam.pem 2048
 #certbot certonly -n --agree-tos --standalone --email "${EMAIL_ADDRESS}" -d "${DOMAIN_NAME}" -d "ipfs-server.${DOMAIN_NAME}"
-echo "30 2 * * 1 certbot renew >> /var/log/letsencrypt/letsencrypt.log" >> /etc/crontab
-echo "35 2 * * 1 systemctl reload nginx" >> /etc/crontab
-
-systemctl restart nginx.service
+#echo "30 2 * * 1 certbot renew >> /var/log/letsencrypt/letsencrypt.log" >> /etc/crontab
+#echo "35 2 * * 1 systemctl reload nginx" >> /etc/crontab
+#systemctl restart nginx.service
