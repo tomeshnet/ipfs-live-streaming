@@ -109,7 +109,7 @@ resource "digitalocean_droplet" "ipfs-server" {
   provisioner "remote-exec" {
     inline           = [
       "chmod +x /tmp/ipfs-server/bootstrap.sh",
-      "chmod +x /tmp/ipfs-server/bootstrap-after-dns.sh",
+      "chmod +x /tmp/ipfs-server/bootstrap-post-dns.sh",
       "chmod +x /tmp/ipfs-server/process-stream.sh",
       "/tmp/ipfs-server/bootstrap.sh ${file(var.domain_name)} ${file(var.email_address)} ${digitalocean_droplet.rtmp-server.ipv4_address_private} ${var.m3u8_http_urls}",
     ]
@@ -175,7 +175,7 @@ resource "null_resource" "ipfs-server" {
   }
   provisioner "remote-exec" {
     inline           = [
-      "/tmp/ipfs-server/bootstrap-after-dns.sh ${file(var.domain_name)} ${file(var.email_address)}",
+      "/tmp/ipfs-server/bootstrap-post-dns.sh ${file(var.domain_name)} ${file(var.email_address)}",
     ]
   }
 }
@@ -210,7 +210,7 @@ resource "digitalocean_droplet" "ipfs-mirror" {
   provisioner "remote-exec" {
     inline           = [
       "chmod +x /tmp/ipfs-mirror/bootstrap.sh",
-      "chmod +x /tmp/ipfs-mirror/bootstrap-after-dns.sh",
+      "chmod +x /tmp/ipfs-mirror/bootstrap-post-dns.sh",
       "chmod +x /tmp/ipfs-mirror/ipfs-pin.sh",
       "chmod +x /tmp/ipfs-mirror/ipfs-pin-service.sh",
       "/tmp/ipfs-mirror/bootstrap.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address)} ${file(".keys/ipfs_id")} ${var.m3u8_http_urls}",
@@ -281,7 +281,7 @@ resource "null_resource" "ipfs-mirror" {
   }
   provisioner "remote-exec" {
     inline           = [
-      "/tmp/ipfs-mirror/bootstrap-after-dns.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address)}",
+      "/tmp/ipfs-mirror/bootstrap-post-dns.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address)}",
     ]
   }
 }
