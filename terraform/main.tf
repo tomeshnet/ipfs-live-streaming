@@ -174,7 +174,7 @@ resource "null_resource" "ipfs-server" {
   }
   provisioner "remote-exec" {
     inline           = [
-      "/tmp/ipfs-server/bootstrap-after-dns.sh ${file(var.domain_name)} ${file(var.email_address)},
+      "/tmp/ipfs-server/bootstrap-after-dns.sh ${file(var.domain_name)} ${file(var.email_address)}",
     ]
   }
 }
@@ -269,7 +269,7 @@ resource "digitalocean_record" "ipfs-mirror-gateway-v6" {
 
 # Get HTTPS certificates after DNS records are configured for IPFS mirrors
 resource "null_resource" "ipfs-mirror" {
-  depends_on         = ["digitalocean_record.ipfs-mirror.*"]
+  depends_on         = ["digitalocean_record.ipfs-mirror"]
   count              = "${var.mirror}"
   connection {
     user             = "root"
@@ -279,7 +279,7 @@ resource "null_resource" "ipfs-mirror" {
   }
   provisioner "remote-exec" {
     inline           = [
-      "/tmp/ipfs-mirror/bootstrap-after-dns.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address)},
+      "/tmp/ipfs-mirror/bootstrap-after-dns.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address)}",
     ]
   }
 }
