@@ -109,8 +109,9 @@ resource "digitalocean_droplet" "ipfs-server" {
   provisioner "remote-exec" {
     inline           = [
       "chmod +x /tmp/ipfs-server/bootstrap.sh",
+      "chmod +x /tmp/ipfs-server/bootstrap-post-dns.sh",
       "chmod +x /tmp/ipfs-server/process-stream.sh",
-      "/tmp/ipfs-server/bootstrap.sh ${file(var.domain_name)} ${digitalocean_droplet.rtmp-server.ipv4_address_private} ${var.m3u8_http_urls}",
+      "/tmp/ipfs-server/bootstrap.sh ${file(var.domain_name)} ${file(var.email_address)} ${digitalocean_droplet.rtmp-server.ipv4_address_private} ${var.m3u8_http_urls}",
     ]
   }
   provisioner "local-exec" {
@@ -140,8 +141,46 @@ resource "digitalocean_record" "ipfs-server-v6" {
   value  = "${digitalocean_droplet.ipfs-server.ipv6_address}"
   ttl    = "600"
 }
+resource "digitalocean_record" "ipfs-server-gateway" {
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "A"
+  name   = "ipfs-gateway"
+  value  = "${digitalocean_droplet.ipfs-server.ipv4_address}"
+  ttl    = "600"
+}
+resource "digitalocean_record" "ipfs-server-gateway-private" {
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "A"
+  name   = "private.ipfs-gateway"
+  value  = "${digitalocean_droplet.ipfs-server.ipv4_address_private}"
+  ttl    = "600"
+}
+resource "digitalocean_record" "ipfs-server-gateway-v6" {
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "AAAA"
+  name   = "v6.ipfs-gateway"
+  value  = "${digitalocean_droplet.ipfs-server.ipv6_address}"
+  ttl    = "600"
+}
 
-# IPFS mirror Droplet
+# Get HTTPS certificates after DNS records are configured for IPFS server
+resource "null_resource" "ipfs-server" {
+  depends_on         = ["digitalocean_record.ipfs-server"]
+  connection {
+    host             = "${digitalocean_droplet.ipfs-server.ipv4_address}"
+    user             = "root"
+    type             = "ssh"
+    private_key      = "${file(var.pvt_key)}"
+    timeout          = "2m"
+  }
+  provisioner "remote-exec" {
+    inline           = [
+      "/tmp/ipfs-server/bootstrap-post-dns.sh ${file(var.domain_name)} ${file(var.email_address)}",
+    ]
+  }
+}
+
+# IPFS mirror Droplets
 resource "digitalocean_droplet" "ipfs-mirror" {
   depends_on         = ["digitalocean_droplet.ipfs-server"]
   count              = "${var.mirror}"
@@ -171,14 +210,15 @@ resource "digitalocean_droplet" "ipfs-mirror" {
   provisioner "remote-exec" {
     inline           = [
       "chmod +x /tmp/ipfs-mirror/bootstrap.sh",
+      "chmod +x /tmp/ipfs-mirror/bootstrap-post-dns.sh",
       "chmod +x /tmp/ipfs-mirror/ipfs-pin.sh",
       "chmod +x /tmp/ipfs-mirror/ipfs-pin-service.sh",
-      "/tmp/ipfs-mirror/bootstrap.sh ${count.index} ${file(var.domain_name)} ${file(".keys/ipfs_id")} ${var.m3u8_http_urls}",
+      "/tmp/ipfs-mirror/bootstrap.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address)} ${file(".keys/ipfs_id")} ${var.m3u8_http_urls}",
     ]
   }
 }
 
-# DNS records for IPFS mirror
+# DNS records for IPFS mirrors
 resource "digitalocean_record" "ipfs-mirror" {
   count  = "${var.mirror}"
   domain = "${digitalocean_domain.ipfs-live-streaming.name}"
@@ -203,6 +243,48 @@ resource "digitalocean_record" "ipfs-mirror-v6" {
   value  = "${element(digitalocean_droplet.ipfs-mirror.*.ipv6_address, count.index)}"
   ttl    = "600"
 }
+resource "digitalocean_record" "ipfs-mirror-gateway" {
+  count  = "${var.mirror}"
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "A"
+  name   = "ipfs-gateway-${count.index}"
+  value  = "${element(digitalocean_droplet.ipfs-mirror.*.ipv4_address, count.index)}"
+  ttl    = "600"
+}
+resource "digitalocean_record" "ipfs-mirror-gateway-private" {
+  count  = "${var.mirror}"
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "A"
+  name   = "private.ipfs-gateway-${count.index}"
+  value  = "${element(digitalocean_droplet.ipfs-mirror.*.ipv4_address_private, count.index)}"
+  ttl    = "600"
+}
+resource "digitalocean_record" "ipfs-mirror-gateway-v6" {
+  count  = "${var.mirror}"
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "AAAA"
+  name   = "v6.ipfs-gateway-${count.index}"
+  value  = "${element(digitalocean_droplet.ipfs-mirror.*.ipv6_address, count.index)}"
+  ttl    = "600"
+}
+
+# Get HTTPS certificates after DNS records are configured for IPFS mirrors
+resource "null_resource" "ipfs-mirror" {
+  depends_on         = ["digitalocean_record.ipfs-mirror"]
+  count              = "${var.mirror}"
+  connection {
+    host             = "${element(concat(digitalocean_droplet.ipfs-mirror.*.ipv4_address), count.index)}"
+    user             = "root"
+    type             = "ssh"
+    private_key      = "${file(var.pvt_key)}"
+    timeout          = "2m"
+  }
+  provisioner "remote-exec" {
+    inline           = [
+      "/tmp/ipfs-mirror/bootstrap-post-dns.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address)}",
+    ]
+  }
+}
 
 # Print summary
 output "digital_ocean_droplets" {
@@ -220,13 +302,19 @@ output "dns_records" {
     "                  ${digitalocean_domain.ipfs-live-streaming.name} = ${digitalocean_domain.ipfs-live-streaming.ip_address}",
     "      ${digitalocean_record.rtmp-server.fqdn} = ${digitalocean_record.rtmp-server.value}",
     "      ${digitalocean_record.ipfs-server.fqdn} = ${digitalocean_record.ipfs-server.value}",
+    "     ${digitalocean_record.ipfs-server-gateway.fqdn} = ${digitalocean_record.ipfs-server-gateway.value}",
     "${zipmap(digitalocean_record.ipfs-mirror.*.fqdn, digitalocean_record.ipfs-mirror.*.value)}",
+    "${zipmap(digitalocean_record.ipfs-mirror-gateway.*.fqdn, digitalocean_record.ipfs-mirror-gateway.*.value)}",
     "      ${digitalocean_record.rtmp-server-private.fqdn} = ${digitalocean_record.rtmp-server-private.value}",
     "      ${digitalocean_record.ipfs-server-private.fqdn} = ${digitalocean_record.ipfs-server-private.value}",
+    "     ${digitalocean_record.ipfs-server-gateway-private.fqdn} = ${digitalocean_record.ipfs-server-gateway-private.value}",
     "${zipmap(digitalocean_record.ipfs-mirror-private.*.fqdn, digitalocean_record.ipfs-mirror-private.*.value)}",
+    "${zipmap(digitalocean_record.ipfs-mirror-gateway-private.*.fqdn, digitalocean_record.ipfs-mirror-gateway-private.*.value)}",
     "      ${digitalocean_record.rtmp-server-v6.fqdn} = ${digitalocean_record.rtmp-server-v6.value}",
     "      ${digitalocean_record.ipfs-server-v6.fqdn} = ${digitalocean_record.ipfs-server-v6.value}",
+    "     ${digitalocean_record.ipfs-server-gateway-v6.fqdn} = ${digitalocean_record.ipfs-server-gateway-v6.value}",
     "${zipmap(digitalocean_record.ipfs-mirror-v6.*.fqdn, digitalocean_record.ipfs-mirror-v6.*.value)}",
+    "${zipmap(digitalocean_record.ipfs-mirror-gateway-v6.*.fqdn, digitalocean_record.ipfs-mirror-gateway-v6.*.value)}",
     "     ${digitalocean_record.publish-openvpn.fqdn} = ${digitalocean_record.publish-openvpn.value}",
     "   ${digitalocean_record.publish-yggdrasil.fqdn} = ${digitalocean_record.publish-yggdrasil.value}",
   ]
@@ -250,12 +338,12 @@ output "public_urls" {
   depends_on = ["digitalocean_record.*"]
   value      = [
     "RTMP stream:                rtmp://${digitalocean_record.rtmp-server.fqdn}/live",
-    "HLS stream (origin):        http://${digitalocean_domain.ipfs-live-streaming.name}/live.m3u8",
-    "HLS stream (mirror-N):      http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}/live.m3u8",
-    "IPNS HLS stream (origin):   http://${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
-    "IPNS HLS stream (mirror-N): http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}:8080/ipns/${file(".keys/ipfs_id")}",
-    "Video player (origin):      http://${digitalocean_domain.ipfs-live-streaming.name}",
-    "Video player (mirror-N):    http://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
-    "Video player (debug):       http://${digitalocean_domain.ipfs-live-streaming.name}?url=live.m3u8",
+    "HLS stream (origin):        https://${digitalocean_domain.ipfs-live-streaming.name}/live.m3u8",
+    "HLS stream (mirror-N):      https://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}/live.m3u8",
+    "IPNS HLS stream (origin):   https://ipfs-gateway.${digitalocean_domain.ipfs-live-streaming.name}/ipns/${file(".keys/ipfs_id")}",
+    "IPNS HLS stream (mirror-N): https://ipfs-gateway-N.${digitalocean_domain.ipfs-live-streaming.name}/ipns/${file(".keys/ipfs_id")}",
+    "Video player (origin):      https://${digitalocean_domain.ipfs-live-streaming.name}",
+    "Video player (mirror-N):    https://ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
+    "Video player (debug):       https://${digitalocean_domain.ipfs-live-streaming.name}?url=live.m3u8",
   ]
 }

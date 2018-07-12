@@ -3,8 +3,9 @@
 set -e
 
 DOMAIN_NAME=$1
-RTMP_SERVER_PRIVATE_IP=$2
-M3U8_HTTP_URLS=$3
+EMAIL_ADDRESS=$2
+RTMP_SERVER_PRIVATE_IP=$3
+M3U8_HTTP_URLS=$4
 
 IPFS_VERSION=0.4.15
 
@@ -24,6 +25,7 @@ curl -sSL https://agent.digitalocean.com/install.sh | sh
 apt update
 apt install -y \
   bc \
+  certbot \
   ffmpeg \
   inotify-tools \
   jq \
@@ -78,7 +80,7 @@ echo "#!/bin/sh" > ~/settings
 echo "export DOMAIN_NAME=\"${DOMAIN_NAME}\"" >> ~/settings
 echo "export RTMP_SERVER_PRIVATE_IP=\"${RTMP_SERVER_PRIVATE_IP}\"" >> ~/settings
 echo "export RTMP_STREAM=\"rtmp://${RTMP_SERVER_PRIVATE_IP}/live\"" >> ~/settings
-echo "export IPFS_GATEWAY=\"http://ipfs-server.${DOMAIN_NAME}:8080\"" >> ~/settings
+echo "export IPFS_GATEWAY=\"https://ipfs-gateway.${DOMAIN_NAME}\"" >> ~/settings
 chmod +x ~/settings
 
 # Install and start process-stream service
@@ -96,11 +98,7 @@ rm -rf /var/www/html/*
 cp -r /tmp/video-player/* /var/www/html/
 
 # Configure video player
-sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
-sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_ORIGIN__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/js/common.js
 sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
-
-# Configure nginx
-cp -f /tmp/ipfs-server/default /etc/nginx/sites-available/default
-systemctl restart nginx.service

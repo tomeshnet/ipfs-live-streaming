@@ -123,6 +123,7 @@ We will be using the following tools and services:
 
 * [Digital Ocean](https://www.digitalocean.com) as the virtual machine provider
 * [Terraform](https://www.terraform.io) to provision the cloud servers
+* [Let's Encrypt](https://letsencrypt.org) to get SSL certificates for HTTPS
 
 The following steps assume you have a Digital Ocean account and the above listed software
 installed on your local machine, which can be the same device running OBS Studio.
@@ -141,6 +142,10 @@ installed on your local machine, which can be the same device running OBS Studio
     Then store the domain name in your local environment:
 
         echo -n YOUR_DOMAIN_NAME > .keys/domain_name
+
+1. Set an email address to use as contact email for Let's Encrypt:
+
+        echo -n YOUR_EMAIL_ADDRESS > .keys/email_address
 
 1. Obtain a read-write access token from your Digital Ocean account's `API` tab, then store
     it in your local environment:
@@ -181,7 +186,7 @@ installed on your local machine, which can be the same device running OBS Studio
 
         terraform apply \
           -var "mirror=2" \
-          -var "m3u8_http_urls=\'http://HLS_SOURCE_0/live.m3u8\',\'http://HLS_SOURCE_1/live.m3u8\'"
+          -var "m3u8_http_urls=\'https://HLS_SOURCE_0/live.m3u8\',\'https://HLS_SOURCE_1/live.m3u8\'"
 
     From your browser, login to your Digital Ocean dashboard and find your new VMs tagged
     with `ipfs-live-streaming`.

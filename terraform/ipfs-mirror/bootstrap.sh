@@ -4,8 +4,9 @@ set -e
 
 IPFS_MIRROR_INSTANCE=$1
 DOMAIN_NAME=$2
-IPFS_SERVER_IPFS_ID=$3
-M3U8_HTTP_URLS=$4
+EMAIL_ADDRESS=$3
+IPFS_SERVER_IPFS_ID=$4
+M3U8_HTTP_URLS=$5
 
 IPFS_VERSION=0.4.15
 
@@ -24,6 +25,7 @@ curl -sSL https://agent.digitalocean.com/install.sh | sh
 # Install programs
 apt update
 apt install -y \
+  certbot \
   nginx
 
 ########
@@ -70,11 +72,7 @@ rm -rf /var/www/html/*
 cp -r /tmp/video-player/* /var/www/html/
 
 # Configure video player
-sed -i "s#__IPFS_GATEWAY_SELF__#http://ipfs-mirror-${IPFS_MIRROR_INSTANCE}.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
-sed -i "s#__IPFS_GATEWAY_ORIGIN__#http://ipfs-server.${DOMAIN_NAME}:8080#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-gateway-${IPFS_MIRROR_INSTANCE}.${DOMAIN_NAME}#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_ORIGIN__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_SERVER_IPFS_ID}#g" /var/www/html/js/common.js
 sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
-
-# Configure nginx
-cp -f /tmp/ipfs-mirror/default /etc/nginx/sites-available/default
-systemctl restart nginx.service

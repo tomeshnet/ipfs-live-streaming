@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HLS_TIME=15
-M3U8_SIZE=10
+M3U8_SIZE=6
 
 # Load settings
 . ~/settings
