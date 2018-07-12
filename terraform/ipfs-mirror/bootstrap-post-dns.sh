@@ -11,7 +11,7 @@ EMAIL_ADDRESS=$3
 #######################
 
 # Generate dhparam.pem
-openssl dhparam –out /etc/ssl/certs/dhparam.pem 2048
+openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
 # Get letsencrypt certificates with certbot
 systemctl stop nginx.service
