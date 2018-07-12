@@ -167,6 +167,7 @@ resource "digitalocean_record" "ipfs-server-gateway-v6" {
 resource "null_resource" "ipfs-server" {
   depends_on         = ["digitalocean_record.ipfs-server"]
   connection {
+    host             = "${digitalocean_droplet.ipfs-server.ipv4_address}"
     user             = "root"
     type             = "ssh"
     private_key      = "${file(var.pvt_key)}"
@@ -272,6 +273,7 @@ resource "null_resource" "ipfs-mirror" {
   depends_on         = ["digitalocean_record.ipfs-mirror"]
   count              = "${var.mirror}"
   connection {
+    host             = "${element(concat(digitalocean_droplet.ipfs-mirror.*.ipv4_address), count.index)}"
     user             = "root"
     type             = "ssh"
     private_key      = "${file(var.pvt_key)}"
