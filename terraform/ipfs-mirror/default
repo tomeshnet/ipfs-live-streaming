@@ -2,7 +2,7 @@ server {
   listen 80;
   listen [::]:80;
   
-  server_name __DOMAIN_NAME__ ipfs-server.__DOMAIN_NAME__;
+  server_name ipfs-mirror-__IPFS_MIRROR_INSTANCE__.__DOMAIN_NAME__;
   return 301 https://$server_name$request_uri;
 }
 
@@ -13,10 +13,10 @@ server {
   root /var/www/html;
   index index.html index.htm index.nginx-debian.html;
   
-  server_name __DOMAIN_NAME__ ipfs-server.__DOMAIN_NAME__;
+  server_name ipfs-mirror-__IPFS_MIRROR_INSTANCE__.__DOMAIN_NAME__;
 
-  ssl_certificate /etc/letsencrypt/live/__DOMAIN_NAME__/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/__DOMAIN_NAME__/privkey.pem;
+  ssl_certificate /etc/letsencrypt/live/ipfs-mirror-__IPFS_MIRROR_INSTANCE__.__DOMAIN_NAME__/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/ipfs-mirror-__IPFS_MIRROR_INSTANCE__.__DOMAIN_NAME__/privkey.pem;
   ssl_dhparam /etc/ssl/certs/dhparam.pem;
 
   # from https://cipherli.st/
@@ -45,6 +45,6 @@ server {
   }
 
   location ~* \.(m3u8)$ {
-    add_header 'Access-Control-Allow-Origin' '*' always;
+    add_header Access-Control-Allow-Origin * always;
   }
 }
