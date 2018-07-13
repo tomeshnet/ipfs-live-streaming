@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title>IPFS Live Streaming</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,17 +16,23 @@
         <div id="SelectStream">
           <h2>Select Live Stream Source</h2>
           <div class="stream-selector-options">
-            <div id="ipfsStream">
-              <button class="stream-option ipfs-stream" title="Play the live stream on through a peer-to-peer hypermedia protocol. More at ipfs.io">
+            <div class="stream-option-wrapper" id="ipfsStream">
+              <button class="stream-option ipfs-stream">
                 <img class="stream-option-graphic" src="graphics/ipfs-icon.svg" alt="IPFS graphic" />
                 <span class="button-label">IPFS</span>
               </button>
+              <div class="stream-option-title-helper">
+                <p>Play the live stream on through a peer-to-peer hypermedia protocol. More at <a href="https://ipfs.io" target="_blank">ipfs.io</a></p>
+              </div>
             </div>
-            <div id="httpStream">
-              <button class="stream-option http-stream" title="Play the live stream on through a media server over HTTP.">
+            <div class="stream-option-wrapper" id="httpStream">
+              <button class="stream-option http-stream">
                 <img class="stream-option-graphic" src="graphics/http-icon.svg" alt="Media server graphic" />
                 <span class="button-label">HTTP</span>
               </button>
+              <div class="stream-option-title-helper">
+                <p>Play the live stream on through a media server over HTTP</p>
+              </div>
             </div>
           </div>
         </div>

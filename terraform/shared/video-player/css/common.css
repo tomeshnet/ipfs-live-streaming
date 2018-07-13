@@ -19,6 +19,11 @@ h2 {
   font-weight: normal;
 }
 
+p {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
 /* Live Stream Container */
 
 .stream-container {
@@ -40,12 +45,19 @@ h2 {
   background: #ffffff;
   left: 0;
   text-align: center;
+  z-index: 10;
 }
 
 .stream-selector-options {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.stream-option-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
 }
 
 .stream-option {
@@ -98,6 +110,36 @@ h2 {
   margin: 0 auto;
   max-width: 75%;
   font-size: 0.85em;
+}
+
+.stream-option-title-helper {
+  position: absolute;
+  top: 100%;
+  display: none;
+  width: 225px;
+  font-size: 0.85em;
+  line-height: 1.2em;
+  color: #777;
+  white-space: normal;
+}
+
+.stream-option-wrapper:hover .stream-option-title-helper {
+  display: block;
+}
+
+.stream-refresh {
+  cursor: pointer;
+  margin-top: 1em;
+  background: #000000;
+  border-color: #000000;
+  color: #ffffff;
+  font-size: 0.85em;
+  padding: 15px 20px;
+}
+
+.stream-refresh:hover {
+  background-color: #333;
+  border-color: #333;
 }
 
 .button-label {
