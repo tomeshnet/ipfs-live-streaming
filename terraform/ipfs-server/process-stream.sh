@@ -90,8 +90,8 @@ while true; do
       tail -n ${M3U8_SIZE} ~/process-stream.log | awk '{print $6"#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' | sed 's/#EXT-X-DISCONTINUITY#/#EXT-X-DISCONTINUITY\n#/g' >> current.m3u8
 
       # Add m3u8 file to IPFS and IPNS publish (uncomment to enable)
-      #m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
-      #ipfs name publish --timeout=5s $m3u8hash &
+      m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
+      ipfs name publish --timeout=5s $m3u8hash &
 
       # Copy files to web server
       cp current.m3u8 /var/www/html/live.m3u8
