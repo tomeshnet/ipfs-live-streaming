@@ -48,5 +48,9 @@ server {
     proxy_set_header X-Nginx-Proxy true;
 
     proxy_redirect off;
+    
+    # Prevent Caching
+    expires           0;
+    add_header        Cache-Control private;
   }
 }
