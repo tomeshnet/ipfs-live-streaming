@@ -42,9 +42,17 @@ server {
     # First attempt to serve request as file, then
     # as directory, then fall back to displaying a 404.
     try_files $uri $uri/ =404;
+    
+    # Prevent Caching
+    expires           0;
+    add_header        Cache-Control private;
   }
 
   location ~* \.(m3u8)$ {
     add_header Access-Control-Allow-Origin * always;
+    
+    # Prevent Caching
+    expires           0;
+    add_header        Cache-Control private;
   }
 }
