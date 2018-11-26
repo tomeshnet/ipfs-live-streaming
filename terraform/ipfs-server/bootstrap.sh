@@ -66,7 +66,7 @@ IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
 echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
 
 # Publish message to IPNS
-echo "Serving m3u8 over IPNS is currently disabled" | ipfs add | awk '{print $2}' | ipfs name publish
+echo "Serving m3u8 over IPNS is currently disabled" | ipfs add | awk '{print $2}' | ipfs name publish --timeout=30s || true &
 
 ########################
 # Process video stream #
