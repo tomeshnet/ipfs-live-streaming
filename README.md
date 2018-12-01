@@ -11,8 +11,7 @@ to run live streams throughout the conference and archive the video assets on th
 IPFS network, that is suitable for a small conference with an audience size of less
 than 100 people.
 
-## Presentation Video
-Here is a presentation / demo [video](https://ipfs.io/ipfs/QmavYuTgw2mjaHYn4MFc2PB34rovZw3ho67yPtHjxjt5Ng/) recorded from IPFS All Hands: November 26, 2018 and slides are available [here.](https://benhylau.github.io/talks-and-workshops/talks/201811_ipfs-all-hands/)
+Here is a [presentation and demo video](https://ipfs.infura.io/ipfs/QmWsKvBvXUKaHcHzrUS91XV4k3YjQFdywQ7bY9BZVX4ghk/) about this project, recorded from the _IPFS All Hands: November 26, 2018_. Slides are available [here](https://benhylau.github.io/talks-and-workshops/talks/201811_ipfs-all-hands/).
 
 ## Set Up
 
