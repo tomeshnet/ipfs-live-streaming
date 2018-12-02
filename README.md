@@ -11,6 +11,8 @@ to run live streams throughout the conference and archive the video assets on th
 IPFS network, that is suitable for a small conference with an audience size of less
 than 100 people.
 
+Here is a [presentation and demo video](https://ipfs.infura.io/ipfs/QmWsKvBvXUKaHcHzrUS91XV4k3YjQFdywQ7bY9BZVX4ghk/) about this project, recorded from the _IPFS All Hands: November 26, 2018_. Slides are available [here](https://benhylau.github.io/talks-and-workshops/talks/201811_ipfs-all-hands/).
+
 ## Set Up
 
 We will record live streams in 720p (3 Mbps) and archive mp4 of each talk in 1080p.
