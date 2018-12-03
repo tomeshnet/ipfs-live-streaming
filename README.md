@@ -241,11 +241,11 @@ The origin `ipfs-server` and each `ipfs-mirror` also host an embedded video play
 
 The embedded video player is tested on common desktop and mobile browsers, and support the following optional URL query parameters:
 
-| Parameter   | Description                                                           |
-|:------------|:----------------------------------------------------------------------|
-| `gw`        | Set IPFS gateway URL to override playback gateway                     |
-| `live_ipfs` | Set m3u8 file URL to override IPFS live stream                        |
-| `vod_ipfs`  | Set IPFS content hash of mp4 file to play IPFS on-demand video stream |
+| Parameter | Description                                                           |
+|:----------|:----------------------------------------------------------------------|
+| `gw`      | Set IPFS gateway URL to override playback gateway                     |
+| `live`    | Set m3u8 file URL to override IPFS live stream                        |
+| `vod`     | Set IPFS content hash of mp4 file to play IPFS on-demand video stream |
 
 ## Attribution
 
