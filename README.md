@@ -220,6 +220,33 @@ installed on your local machine, which can be the same device running OBS Studio
 
         terraform destroy
 
+## Video Playback
+
+The following streams become publicly available about 30 seconds after you start publishing to the RTMP server:
+
+| Stream                     | URL                                                                 |
+|:---------------------------|:--------------------------------------------------------------------|
+| RTMP stream                | `rtmp://rtmp-server.YOUR_DOMAIN_NAME/live`                          |
+| HLS stream (origin)        | `https://YOUR_DOMAIN_NAME/live.m3u8`                                |
+| HLS stream (mirror-N)      | `https://ipfs-mirror-N.YOUR_DOMAIN_NAME/live.m3u8`                  |
+| IPNS HLS stream (origin)   | `https://ipfs-gateway.YOUR_DOMAIN_NAME/ipns/IPNS_ID` _(disabled)_   |
+| IPNS HLS stream (mirror-N) | `https://ipfs-gateway-N.YOUR_DOMAIN_NAME/ipns/IPNS_ID` _(disabled)_ |
+
+The origin `ipfs-server` and each `ipfs-mirror` also host an embedded video player, publicly available at:
+
+| Site                    | URL                                      |
+|:------------------------|:-----------------------------------------|
+| Video player (origin)   | `https://YOUR_DOMAIN_NAME`               |
+| Video player (mirror-N) | `https://ipfs-mirror-N.YOUR_DOMAIN_NAME` |
+
+The embedded video player is tested on common desktop and mobile browsers, and support the following optional URL query parameters:
+
+| Parameter   | Description                                                           |
+|:------------|:----------------------------------------------------------------------|
+| `gw`        | Set IPFS gateway URL to override playback gateway                     |
+| `live_ipfs` | Set m3u8 file URL to override IPFS live stream                        |
+| `vod_ipfs`  | Set IPFS content hash of mp4 file to play IPFS on-demand video stream |
+
 ## Attribution
 
 The video player uses code from [Video.js](https://videojs.com), graphics from [ipfs/artwork](https://github.com/ipfs/artwork), and loading animation from [jxnblk/loading](https://github.com/jxnblk/loading).

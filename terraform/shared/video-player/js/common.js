@@ -1,31 +1,45 @@
-// JavaScript Document
-
-var ipfs_gateway_self = '__IPFS_GATEWAY_SELF__'; // IPFS gateway of this node
+// IPFS config
+var ipfs_gateway_self = '__IPFS_GATEWAY_SELF__';     // IPFS gateway of this node
 var ipfs_gateway_origin = '__IPFS_GATEWAY_ORIGIN__'; // IPFS gateway of origin stream
-var m3u8_ipfs = 'live.m3u8'; // File path to m3u8 with IPFS content via HTTP server
-// var m3u8_ipfs = '__IPFS_GATEWAY_ORIGIN__/ipns/__IPFS_ID_ORIGIN__'; // URL to m3u8 via IPNS (uncomment to enable)
-var m3u8_http_urls = [__M3U8_HTTP_URLS__]; // Optional list of URLs to m3u8 over HTTP
 
-function getQueryVariable(variable) {
-  var query = window.location.search.substring(1);
-  var vars = query.split('&');
-  for (var i = 0; i < vars.length; i++) {
-    var pair = vars[i].split('=');
-    if (decodeURIComponent(pair[0]) === variable) {
-      return decodeURIComponent(pair[1]);
-    }
-  }
-  console.log('Query variable %s not found', variable);
+// Live stream config
+var m3u8_ipfs = 'live.m3u8';                                          // HTTP or local path to m3u8 file containing IPFS content
+// var m3u8_ipfs = '__IPFS_GATEWAY_ORIGIN__/ipns/__IPFS_ID_ORIGIN__'; // IPNS path to m3u8 file containing IPFS content (uncomment to enable)
+var m3u8_http_urls = [__M3U8_HTTP_URLS__];                            // HTTP or local paths to m3u8 file containing HTTP content (optional)
+
+// Configure default playback behaviour
+var stream_type = 'application/x-mpegURL'; // Type of video stream
+var stream_url_ipfs = m3u8_ipfs;           // Source of IPFS video stream
+var stream_urls_http = m3u8_http_urls;     // Source of HTTP video stream
+
+// Process URL params
+function getURLParam(key) {
+  return new URLSearchParams(window.location.search).get(key);
 }
 
-if (getQueryVariable('url')) {
-  m3u8_ipfs = getQueryVariable('url');
+var ipfs_gw = getURLParam('gw')     // Set IPFS gateway URL to override playback gateway
+var live_ipfs = getURLParam('live') // Set m3u8 file URL to override IPFS live stream
+var vod_ipfs = getURLParam('vod')   // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
+
+if (ipfs_gw) {
+  ipfs_gateway_self = ipfs_gw;
 }
 
-if (getQueryVariable('ipfs_gateway_self')) {
-  ipfs_gateway_self = getQueryVariable('ipfs_gateway_self');
+if (live_ipfs) {
+  stream_type = 'application/x-mpegURL';
+  stream_url_ipfs = live_ipfs;
+  stream_urls_http = m3u8_http_urls;
 }
 
+if (vod_ipfs) {
+  stream_type = 'video/mp4';
+  stream_url_ipfs = ipfs_gateway_self + '/ipfs/' + vod_ipfs;
+  stream_urls_http = [];
+
+  document.getElementById('selectingTitle').innerHTML = 'Select Recorded Stream Source';
+}
+
+// Configure video player
 var live = videojs('live');
 
 // For any browser except Safari
@@ -38,16 +52,16 @@ if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent) === false) {
 
 function httpStream() {
   live.src({
-    src: m3u8_http_urls[Math.floor(Math.random() * m3u8_http_urls.length)],
-    type: 'application/x-mpegURL'
+    src: stream_urls_http[Math.floor(Math.random() * m3u8_http_urls.length)],
+    type: stream_type
   });
   loadStream();
 }
 
 function ipfsStream() {
   live.src({
-    src: m3u8_ipfs,
-    type: 'application/x-mpegURL'
+    src: stream_url_ipfs,
+    type: stream_type
   });
   loadStream();
   videojs.Hls.xhr.beforeRequest = function(options) {
@@ -63,8 +77,8 @@ function ipfsStream() {
 }
 
 function loadStream() {
-  document.getElementById('LoadingStream').style.display = 'block';
-  document.getElementById('SelectStream').style.display = 'none';
+  document.getElementById('loadingStream').style.display = 'block';
+  document.getElementById('selectStream').style.display = 'none';
 }
 
 document.querySelector('.ipfs-stream').addEventListener('click', function(event) {
@@ -78,7 +92,7 @@ document.querySelector('.http-stream').addEventListener('click', function(event)
 live.metadata = 'none';
 
 live.on('loadedmetadata', function() {
-  document.getElementById('StreamSelector').style.display = 'none';
+  document.getElementById('streamSelector').style.display = 'none';
 });
 
 live.on('loadeddata', function(event) {
@@ -94,12 +108,12 @@ refreshButton.addEventListener('click', function() {
 
 live.on('error', function(event) {
   console.debug(this.error());
-  document.getElementById('loadingTitle').innerHTML = 'Unable to load live stream';
+  document.getElementById('loadingTitle').innerHTML = 'Unable to load video stream';
   document.querySelector('.loader-animation').style.display = 'none';
   document.getElementById('msg').innerHTML = this.error().message;
-  document.getElementById('LoadingStream').appendChild(refreshButton);
+  document.getElementById('loadingStream').appendChild(refreshButton);
 });
 
-if (!m3u8_http_urls || !Array.isArray(m3u8_http_urls) || (m3u8_http_urls.length === 0)) {
+if (!stream_urls_http || !Array.isArray(stream_urls_http) || (stream_urls_http.length === 0)) {
   document.querySelector('.http-stream').setAttribute('disabled', 'disabled');
 }
