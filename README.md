@@ -209,11 +209,11 @@ installed on your local machine, which can be the same device running OBS Studio
 
         sudo yggdrasil --useconf < ./keys/yggdrasil.conf
         ...
-        2018/06/11 03:07:19 Connected: fd00:b280:f90d:5af1:3779:7030:5298:ebaa@159.203.19.222
+        2018/12/14 15:16:22 Connected: 203:4bb0:9ff1:2312:e7f3:b8c4:852:a8b1@104.248.104.141 source 192.168.1.173
 
     Then publish your OBS Studio stream to the IPv6:
 
-        rtmp://[fd00:b280:f90d:5af1:3779:7030:5298:ebaa]:1935/live
+        rtmp://[203:4bb0:9ff1:2312:e7f3:b8c4:852:a8b1]:1935/live
 
 1. When your streaming session is done, you can stop OpenVPN or Yggdrasil and destroy the
     servers with:

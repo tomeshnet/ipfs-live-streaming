@@ -2,10 +2,10 @@ package main
 
 import "encoding/hex"
 import "fmt"
-import "yggdrasil"
+import . "github.com/yggdrasil-network/yggdrasil-go/src/yggdrasil"
 
 func main() {
-  var core yggdrasil.Core
+  var core Core
 
   bpub, bpriv := core.NewEncryptionKeys()
   id := core.DEBUG_getNodeID(bpub)
