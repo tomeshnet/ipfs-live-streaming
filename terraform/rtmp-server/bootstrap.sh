@@ -155,7 +155,7 @@ sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
 yggdrasil --genconf | grep -v '^DEBUG' > ~/client-keys/yggdrasil.conf
 sed -i "s/EncryptionPublicKey: .*/`cat ~/publisher.key | grep EncryptionPublicKey`/" ~/client-keys/yggdrasil.conf
 sed -i "s/EncryptionPrivateKey: .*/`cat ~/publisher.key | grep EncryptionPrivateKey`/" ~/client-keys/yggdrasil.conf
-sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2'}`:12345\"\]|" ~/client-keys/yggdrasil.conf
+sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}'`:12345\"\]|" ~/client-keys/yggdrasil.conf
 
 # Start yggdrasil service
 cp contrib/systemd/* /etc/systemd/system/
@@ -168,7 +168,7 @@ cd ~
 until [[ `ifconfig tun1 >/dev/null 2>&1; echo $?` -eq 0 ]]; do
   sleep 1
 done
-echo -n `ifconfig tun1 | grep 'inet6 2' | awk '{print $2'}` > ~/client-keys/rtmp_yggdrasil
+echo -n `ifconfig tun1 | grep -E 'inet6 2[0-9a-fA-F]{2}:' | awk '{print $2}'` > ~/client-keys/rtmp_yggdrasil
 
 #######################
 # nginx + RTMP module #
