@@ -149,6 +149,7 @@ cp yggdrasilctl /usr/bin/
 # Configure yggdrasil
 yggdrasil --genconf | grep -v '^DEBUG' > /etc/yggdrasil.conf
 sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
+sed -i "s/IfName: auto/IfName: ygg0/" /etc/yggdrasil.conf
 
 # Generate publisher yggdrasil configurations
 ./genkeys | grep -v '^DEBUG' > ~/publisher.key
@@ -165,10 +166,10 @@ systemctl start yggdrasil
 cd ~
 
 # Write server yggdrasil IP address to client file
-until [[ `ifconfig tun1 >/dev/null 2>&1; echo $?` -eq 0 ]]; do
+until [[ `ifconfig ygg0 >/dev/null 2>&1; echo $?` -eq 0 ]]; do
   sleep 1
 done
-echo -n `ifconfig tun1 | grep -E 'inet6 2[0-9a-fA-F]{2}:' | awk '{print $2}'` > ~/client-keys/rtmp_yggdrasil
+echo -n `ifconfig ygg0 | grep -E 'inet6 2[0-9a-fA-F]{2}:' | awk '{print $2}'` > ~/client-keys/rtmp_yggdrasil
 
 #######################
 # nginx + RTMP module #
