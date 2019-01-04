@@ -2,7 +2,7 @@
 
 set -e
 
-YGGDRASIL_GO_VERSION=0.3.0
+YGGDRASIL_GO_VERSION=0.3.2
 NGINX_VERSION=1.15.0
 
 # Wait for cloud-init to complete
@@ -141,19 +141,21 @@ git checkout "v${YGGDRASIL_GO_VERSION}"
 mkdir cmd/genkeys
 cp /tmp/rtmp-server/yggdrasil-genkeys.go cmd/genkeys/main.go
 
-# Build yggdrasil (with debug functions for genkeys)
-./build -d
+# Build yggdrasil
+./build
 cp yggdrasil /usr/bin/
 cp yggdrasilctl /usr/bin/
 
 # Configure yggdrasil
-yggdrasil --genconf | grep -v '^DEBUG' > /etc/yggdrasil.conf
+addgroup --system --quiet yggdrasil
+yggdrasil --genconf > /etc/yggdrasil.conf
+chgrp yggdrasil /etc/yggdrasil.conf
 sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
 sed -i "s/IfName: auto/IfName: ygg0/" /etc/yggdrasil.conf
 
 # Generate publisher yggdrasil configurations
-./genkeys | grep -v '^DEBUG' > ~/publisher.key
-yggdrasil --genconf | grep -v '^DEBUG' > ~/client-keys/yggdrasil.conf
+./genkeys > ~/publisher.key
+yggdrasil --genconf > ~/client-keys/yggdrasil.conf
 sed -i "s/EncryptionPublicKey: .*/`cat ~/publisher.key | grep EncryptionPublicKey`/" ~/client-keys/yggdrasil.conf
 sed -i "s/EncryptionPrivateKey: .*/`cat ~/publisher.key | grep EncryptionPrivateKey`/" ~/client-keys/yggdrasil.conf
 sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}'`:12345\"\]|" ~/client-keys/yggdrasil.conf

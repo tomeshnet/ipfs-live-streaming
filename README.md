@@ -70,7 +70,7 @@ The laptop runs the following software:
   [Yggdrasil](https://github.com/yggdrasil-network/yggdrasil-go) to authenticate the
   streaming device
 
-For Yggdrasil, you should compile at tag `v0.2`, and when streaming, run it with the
+For Yggdrasil, you should compile at tag `v0.3.2`, and when streaming, run it with the
 configurations that will be downloaded from the streaming server at a later step.
 
 OBS Studio is used throughout the conference to toggle between the two video feeds (i.e. 
