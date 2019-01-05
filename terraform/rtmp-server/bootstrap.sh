@@ -2,7 +2,7 @@
 
 set -e
 
-YGGDRASIL_GO_VERSION=0.2
+YGGDRASIL_GO_VERSION=0.3.2
 NGINX_VERSION=1.15.0
 
 # Wait for cloud-init to complete
@@ -31,8 +31,8 @@ apt install -y \
 
 # Install golang
 mkdir /tmp/golang
-wget --progress=bar:force https://dl.google.com/go/go1.9.2.linux-amd64.tar.gz -P /tmp/golang
-tar -C /usr/local -xzf /tmp/golang/go1.9.2.linux-amd64.tar.gz
+wget --progress=bar:force https://dl.google.com/go/go1.11.2.linux-amd64.tar.gz -P /tmp/golang
+tar -C /usr/local -xzf /tmp/golang/go1.11.2.linux-amd64.tar.gz
 {
   echo ''
   echo '# Add golang path'
@@ -131,25 +131,34 @@ cp ~/client-keys/client.conf ~/client-keys/client.ovpn
 # Yggdrasil #
 #############
 
-# Install yggdrasil
+# Download yggdrasil
+cd ~
 git clone https://github.com/yggdrasil-network/yggdrasil-go.git
 cd yggdrasil-go
 git checkout "v${YGGDRASIL_GO_VERSION}"
-cp /tmp/rtmp-server/generate_keys.go .
-./build -tags debug
+
+# Create custom file to generate yggdrasil keys
+mkdir cmd/genkeys
+cp /tmp/rtmp-server/yggdrasil-genkeys.go cmd/genkeys/main.go
+
+# Build yggdrasil
+./build
 cp yggdrasil /usr/bin/
 cp yggdrasilctl /usr/bin/
 
 # Configure yggdrasil
+addgroup --system --quiet yggdrasil
 yggdrasil --genconf > /etc/yggdrasil.conf
+chgrp yggdrasil /etc/yggdrasil.conf
 sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
+sed -i "s/IfName: auto/IfName: ygg0/" /etc/yggdrasil.conf
 
 # Generate publisher yggdrasil configurations
-./generate_keys > ~/publisher.key
+./genkeys > ~/publisher.key
 yggdrasil --genconf > ~/client-keys/yggdrasil.conf
 sed -i "s/EncryptionPublicKey: .*/`cat ~/publisher.key | grep EncryptionPublicKey`/" ~/client-keys/yggdrasil.conf
 sed -i "s/EncryptionPrivateKey: .*/`cat ~/publisher.key | grep EncryptionPrivateKey`/" ~/client-keys/yggdrasil.conf
-sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2'}`:12345\"\]|" ~/client-keys/yggdrasil.conf
+sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}'`:12345\"\]|" ~/client-keys/yggdrasil.conf
 
 # Start yggdrasil service
 cp contrib/systemd/* /etc/systemd/system/
@@ -159,10 +168,10 @@ systemctl start yggdrasil
 cd ~
 
 # Write server yggdrasil IP address to client file
-until [[ `ifconfig tun1 >/dev/null 2>&1; echo $?` -eq 0 ]]; do
+until [[ `ifconfig ygg0 >/dev/null 2>&1; echo $?` -eq 0 ]]; do
   sleep 1
 done
-echo -n `ifconfig tun1 | grep 'inet6 fd' | awk '{print $2'}` > ~/client-keys/rtmp_yggdrasil
+echo -n `ifconfig ygg0 | grep -E 'inet6 2[0-9a-fA-F]{2}:' | awk '{print $2}'` > ~/client-keys/rtmp_yggdrasil
 
 #######################
 # nginx + RTMP module #
