@@ -1,26 +1,11 @@
 #!/bin/bash
 
-HLS_TIME=15
-M3U8_SIZE=6
-
 # Load settings
 . ~/settings
 
-function startFFmpeg() {
-  while true; do
-    mv /var/log/ffmpeg /var/log/ffmpeg.1
-    echo 1 > ~/stream-reset
-    ffmpeg -nostats -re -i "${RTMP_STREAM}" -f mpegts -vcodec copy -hls_time ${HLS_TIME} -hls_list_size 10 -f hls ${what}.m3u8 > /var/log/ffmpeg 2>&1
-    sleep 0.5
-  done
-}
-
 # Create directory for HLS content
-rm -rf ~/live
-mkdir ~/live
-cd ~/live
-
-what="$(date +%Y%m%d%H%M)-LIVE"
+rm -rf ~/hls/*
+cd ~/hls
 
 # Start ffmpeg in background
 startFFmpeg &
