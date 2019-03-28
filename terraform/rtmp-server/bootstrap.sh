@@ -57,7 +57,6 @@ tar -C /usr/local -xzf /tmp/golang/go1.11.2.linux-amd64.tar.gz
 . /etc/profile
 
 # Create directory for generating client keys
-mkdir /root/client-keys
 
 ###########
 # OpenVPN #
@@ -226,7 +225,7 @@ cd ~
 # Configure IPFS
 ipfs init
 sed -i 's#"Gateway": "/ip4/127.0.0.1/tcp/8080#"Gateway": "/ip4/0.0.0.0/tcp/8080#' ~/.ipfs/config
-cp -f /tmp/ipfs-server/ipfs.service /etc/systemd/system/ipfs.service
+cp -f /tmp/rtmp-server/ipfs.service /etc/systemd/system/ipfs.service
 systemctl daemon-reload
 systemctl enable ipfs
 systemctl start ipfs
@@ -252,7 +251,7 @@ echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
 ########################
 
 # Install video stream processing script
-cp -f /tmp/ipfs-server/process-stream.sh ~/process-stream.sh
+cp -f /tmp/rtmp-server/process-stream.sh ~/process-stream.sh
 
 # Save settings to a file
 echo "#!/bin/sh" > ~/settings
@@ -263,7 +262,7 @@ echo "export IPFS_GATEWAY=\"https://ipfs-gateway.${DOMAIN_NAME}\"" >> ~/settings
 chmod +x ~/settings
 
 # Install and start process-stream service
-cp -f /tmp/ipfs-server/process-stream.service /etc/systemd/system/process-stream.service
+cp -f /tmp/rtmp-server/process-stream.service /etc/systemd/system/process-stream.service
 systemctl daemon-reload
 systemctl enable process-stream
 systemctl start process-stream
