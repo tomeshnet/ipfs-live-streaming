@@ -200,7 +200,7 @@ git clone https://github.com/arut/nginx-rtmp-module.git
 
 # Build nginx with nginx-rtmp
 cd "nginx-${NGINX_VERSION}"
-./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
+./configure --with-http_ssl_module --with-http_v2_module --with-fastcgi=/usr/local --add-module=../nginx-rtmp-module
 make
 make install
 
