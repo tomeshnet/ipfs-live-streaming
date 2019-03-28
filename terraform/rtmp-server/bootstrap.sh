@@ -199,7 +199,7 @@ git clone https://github.com/arut/nginx-rtmp-module.git
 
 # Build nginx with nginx-rtmp
 cd "nginx-${NGINX_VERSION}"
-./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
+./configure --with-http_ssl_module --with-http_v2_module --with-fastcgi=/usr/local --add-module=../nginx-rtmp-module
 make
 make install
 
@@ -207,9 +207,6 @@ make install
 mkdir /root/hls
 cp -f /tmp/rtmp-server/nginx.conf /usr/local/nginx/conf/nginx.conf
 sed -i "s/__PUBLISHER_IP_ADDRESS__/`cat ~/publisher.key | grep Address | awk '{print $2}'`/" /usr/local/nginx/conf/nginx.conf
-
-# Start nginx
-/usr/local/nginx/sbin/nginx
 
 ########
 # IPFS #
@@ -272,7 +269,8 @@ systemctl start process-stream
 ################
 
 # Install web video player
-rm -rf /var/www/html/*
+rm -rf /var/www/html/* || true
+mkdir -p /var/www/html/ || true
 cp -r /tmp/video-player/* /var/www/html/
 
 # Configure video player
@@ -280,3 +278,8 @@ sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/
 sed -i "s#__IPFS_GATEWAY_ORIGIN__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/js/common.js
 sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
+
+mkdir /usr/local/nginx/conf/conf.d
+
+# Start nginx
+/usr/local/nginx/sbin/nginx
