@@ -283,5 +283,6 @@ mkdir /usr/local/nginx/conf/conf.d
 
 # Start nginx
 cp /tmp/rtmp-server/nginx.service /etc/systemd/system/nginx.service
-chmod +x /tmp/rtmp-server/*.sh
-systemctl start nginx
+systemctl daemon-reload
+systemctl enable nginx.service
+systemctl start nginx.service
