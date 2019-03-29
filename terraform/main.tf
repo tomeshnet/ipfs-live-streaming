@@ -37,7 +37,9 @@ resource "digitalocean_droplet" "rtmp-server" {
   provisioner "remote-exec" {
     inline           = [
       "chmod +x /tmp/rtmp-server/bootstrap.sh",
-      "/tmp/rtmp-server/bootstrap.sh",
+      "chmod +x /tmp/rtmp-server/bootstrap-post-dns.sh",
+      "chmod +x /tmp/rtmp-server/process-stream.sh",
+      "/tmp/rtmp-server/bootstrap.sh ${file(var.domain_name)} ${file(var.email_address)} ${digitalocean_droplet.rtmp-server.ipv4_address_private} ${var.m3u8_http_urls}",
     ]
   }
   provisioner "local-exec" {
@@ -94,13 +96,41 @@ resource "null_resource" "rtmp-server" {
     private_key      = "${file(var.pvt_key)}"
     timeout          = "2m"
   }
+
   provisioner "remote-exec" {
     inline           = [
       "/tmp/rtmp-server/bootstrap-post-dns.sh ${file(var.domain_name)} ${file(var.email_address)}",
     ]
   }
 }
-
+resource "digitalocean_record" "ipfs-server-v6" {
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "AAAA"
+  name   = "v6.ipfs-server"
+  value  = "${digitalocean_droplet.rtmp-server.ipv6_address}"
+  ttl    = "600"
+}
+resource "digitalocean_record" "ipfs-server-gateway" {
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "A"
+  name   = "ipfs-gateway"
+  value  = "${digitalocean_droplet.rtmp-server.ipv4_address}"
+  ttl    = "600"
+}
+resource "digitalocean_record" "ipfs-server-gateway-private" {
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "A"
+  name   = "private.ipfs-gateway"
+  value  = "${digitalocean_droplet.rtmp-server.ipv4_address_private}"
+  ttl    = "600"
+}
+resource "digitalocean_record" "ipfs-server-gateway-v6" {
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "AAAA"
+  name   = "v6.ipfs-gateway"
+  value  = "${digitalocean_droplet.rtmp-server.ipv6_address}"
+  ttl    = "600"
+}
 # IPFS mirror Droplets
 resource "digitalocean_droplet" "ipfs-mirror" {
   depends_on         = ["digitalocean_droplet.rtmp-server"]
@@ -238,7 +268,7 @@ output "dns_records" {
 output "ssh_access" {
   depends_on = ["digitalocean_record.*"]
   value      = [
-    "rtmp-server:   ssh -i .keys/id_rsa root@${digitalocean_record.rtmp-server.fqdn}",
+    	"rtmp-server:   ssh -i .keys/id_rsa root@${digitalocean_record.rtmp-server.fqdn}",
     "ipfs-mirror-N: ssh -i .keys/id_rsa root@ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
   ]
 }

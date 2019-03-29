@@ -199,7 +199,7 @@ git clone https://github.com/arut/nginx-rtmp-module.git
 
 # Build nginx with nginx-rtmp
 cd "nginx-${NGINX_VERSION}"
-./configure --with-http_ssl_module --with-http_v2_module --with-fastcgi=/usr/local --add-module=../nginx-rtmp-module
+./configure --with-http_ssl_module --with-http_v2_module --add-module=../nginx-rtmp-module
 make
 make install
 
@@ -282,4 +282,6 @@ sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
 mkdir /usr/local/nginx/conf/conf.d
 
 # Start nginx
-/usr/local/nginx/sbin/nginx
+cp /tmp/rtmp-server/nginx.service /etc/systemd/system/nginx.service
+chmod +x /tmp/rtmp-server/*.sh
+systemctl start nginx
