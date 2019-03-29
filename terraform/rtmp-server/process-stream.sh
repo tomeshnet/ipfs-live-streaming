@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # Load settings
@@ -8,8 +7,9 @@
 rm -rf ~/hls/*
 cd ~/hls
 
+DISCONNET=1
+
 # Start ffmpeg in background
-startFFmpeg &
 what="TEST1"
 M3U8_SIZE=5
 
@@ -20,17 +20,17 @@ while true; do
   		timecode=`grep -B1 ${nextfile} ${what}.m3u8 | head -n1 | awk -F : '{print $2}' | tr -d ,`
   		if ! [ -z "${nextfile}" ]; then
   			if ! [ -z "{$timecode}" ]; then
-    			echo FOUND $nextfile
 
-    			# Check if the next file on the list is still being written to by ffmpeg
-    			echo ${nextfile} ${timecode}
-			    reset_stream=$(cat ~/stream-reset)
-			    reset_stream_marker=''
-			    if [[ ${reset_stream} -eq '1' ]]; then
-			      reset_stream_marker=" #EXT-X-DISCONTINUITY"
-			    fi
 
-			    echo 0 > ~/stream-reset
+                            reset_stream_marker=''
+                            if [[ "$(grep -B2 ${nextfile} ${what}.m3u8 | head -n1)" == "#EXT-X-DISCONTINUITY" ]]; then
+                               reset_stream_marker=" #EXT-X-DISCONTINUITY"
+                            if
+                            if [[ "$(DISCONNET)" == "1" ]]; then
+                               reset_stream_marker=" #EXT-X-DISCONTINUITY"
+			       DISCONNECT=0
+                            fi
+
 			    # Current UTC date for the log
 			    time=`date "+%F-%H-%M-%S"`
 
