@@ -8,8 +8,6 @@ rm -rf ~/hls/*
 cd ~/hls
 
 DISCONNET=1
-
-# Start ffmpeg in background
 what="stream1"
 M3U8_SIZE=5
 
@@ -24,7 +22,7 @@ while true; do
 				reset_stream_marker=''
 				if [[ "$(grep -B2 ${nextfile} ${what}.m3u8 | head -n1)" == "#EXT-X-DISCONTINUITY" ]]; then
 					reset_stream_marker=" #EXT-X-DISCONTINUITY"
-				if
+				fi
 				if [[ "$(DISCONNET)" == "1" ]]; then
 					reset_stream_marker=" #EXT-X-DISCONTINUITY"
 					DISCONNECT=0
