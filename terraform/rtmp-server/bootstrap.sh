@@ -37,10 +37,7 @@ apt install -y \
   zlib1g-dev \
   bc \
   certbot \
-  ffmpeg \
-  inotify-tools \
-  jq \
-  lsof
+  jq 
 
 # Create directory for generating client keys
 mkdir /root/client-keys
@@ -284,5 +281,6 @@ mkdir /usr/local/nginx/conf/conf.d
 # Start nginx
 cp /tmp/rtmp-server/nginx.service /etc/systemd/system/nginx.service
 systemctl daemon-reload
-systemctl enable nginx.service
-systemctl start nginx.service
+systemctl enable nginx.service || true
+systemctl start nginx.service || true
+exit 0

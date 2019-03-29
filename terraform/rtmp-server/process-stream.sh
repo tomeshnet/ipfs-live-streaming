@@ -40,7 +40,6 @@ while true; do
 			    until [[ ${ret} -eq 0 || ${attempts} -eq 0 ]]; do
 			    	# Wait and retry
 			    	sleep 1
-			    	echo ipfs add ${nextfile}
 			    	ret=`ipfs add ${nextfile} 2>/dev/null > ~/tmp.txt; echo $?`
 			    	attempts=$((attempts-1))
 			    done
