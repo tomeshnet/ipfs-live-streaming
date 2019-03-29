@@ -103,6 +103,13 @@ resource "null_resource" "rtmp-server" {
     ]
   }
 }
+resource "digitalocean_record" "ipfs-server" {
+  domain = "${digitalocean_domain.ipfs-live-streaming.name}"
+  type   = "A"
+  name   = "ipfs-server"
+  value  = "${digitalocean_droplet.rtmp-server.ipv4_address}"
+  ttl    = "600"
+}
 resource "digitalocean_record" "ipfs-server-v6" {
   domain = "${digitalocean_domain.ipfs-live-streaming.name}"
   type   = "AAAA"
