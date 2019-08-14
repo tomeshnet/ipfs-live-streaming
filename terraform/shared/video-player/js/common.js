@@ -66,10 +66,15 @@ function ipfsStream() {
   loadStream();
   videojs.Hls.xhr.beforeRequest = function(options) {
     // Replace IPFS gateway of origin with that of this node
-    options.uri = options.uri.replace(ipfs_gateway_origin, ipfs_gateway_self);
-    if (options.uri.indexOf('/ipfs/')) {
+    if (options.uri.indexOf('/ipfs/')>0) {
       document.getElementById('loadingTitle').innerHTML = 'Located stream via IPFS';
       document.getElementById('msg').innerHTML = 'Downloading video content...';
+      options.uri = ipfs_gateway_origin + options.uri.substring(options.uri.indexOf('/ipfs/'));
+    }
+    if (options.uri.indexOf('/ipns/')>0) {
+      document.getElementById('loadingTitle').innerHTML = 'Located stream via IPFS';
+      document.getElementById('msg').innerHTML = 'Downloading video content...';
+      options.uri = ipfs_gateway_origin + options.uri.substring(options.uri.indexOf('/ipns/'));
     }
     console.debug(options.uri);
     return options;
