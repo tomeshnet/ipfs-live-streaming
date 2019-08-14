@@ -8,7 +8,7 @@ EMAIL_ADDRESS=$3
 IPFS_SERVER_IPFS_ID=$4
 M3U8_HTTP_URLS=$5
 
-IPFS_VERSION=0.4.15
+IPFS_VERSION=0.4.22
 
 # Wait for cloud-init to complete
 until [[ -f /var/lib/cloud/instance/boot-finished ]]; do
