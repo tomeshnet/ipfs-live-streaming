@@ -202,7 +202,7 @@ installed on your local machine, which can be the same device running OBS Studio
     To authenticate using OpenVPN, connect with your OpenVPN client using `client.conf` or
     `client.ovpn`, then publish your OBS Studio stream to:
 
-        rtmp://10.10.10.1:1935/live
+        rtmp://10.10.10.1:1935/live/stream1
 
     To authenticate using Yggdrasil, start it with `yggdrasil.conf` and note the last line of
     output like this:
@@ -213,7 +213,7 @@ installed on your local machine, which can be the same device running OBS Studio
 
     Then publish your OBS Studio stream to the IPv6:
 
-        rtmp://[203:4bb0:9ff1:2312:e7f3:b8c4:852:a8b1]:1935/live
+        rtmp://[203:4bb0:9ff1:2312:e7f3:b8c4:852:a8b1]:1935/live/stream1
 
 1. When your streaming session is done, you can stop OpenVPN or Yggdrasil and destroy the
     servers with:
