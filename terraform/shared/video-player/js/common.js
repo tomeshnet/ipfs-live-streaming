@@ -1,6 +1,5 @@
 // IPFS config
-var ipfs_gateway_self = '__IPFS_GATEWAY_SELF__';     // IPFS gateway of this node
-var ipfs_gateway_origin = '__IPFS_GATEWAY_ORIGIN__'; // IPFS gateway of origin stream
+var ipfs_gateway = '__IPFS_GATEWAY_SELF__';     // IPFS gateway
 
 // Live stream config
 var m3u8_ipfs = 'live.m3u8';                                          // HTTP or local path to m3u8 file containing IPFS content
@@ -23,7 +22,7 @@ var vod_ipfs = getURLParam('vod')   // Set IPFS content hash of mp4 file to play
 var startFrom = getURLParam("startFrom"); // Timecode to start video playing from
 
 if (ipfs_gw) {
-  ipfs_gateway_self = ipfs_gw;
+  ipfs_gateway = ipfs_gw;
 }
 
 if (live_ipfs) {
@@ -34,7 +33,7 @@ if (live_ipfs) {
 
 if (vod_ipfs) {
   stream_type = 'video/mp4';
-  stream_url_ipfs = ipfs_gateway_self + '/ipfs/' + vod_ipfs;
+  stream_url_ipfs = ipfs_gateway + '/ipfs/' + vod_ipfs;
   stream_urls_http = [];
 
   document.getElementById('selectingTitle').innerHTML = 'Select Recorded Stream Source';
@@ -100,7 +99,7 @@ function ipfsStream() {
     if (options.uri.indexOf('/ipns/') > 0) {
       document.getElementById('loadingTitle').innerHTML = 'Located stream via IPFS';
       document.getElementById('msg').innerHTML = 'Downloading video content...';
-      options.uri = ipfs_gateway_origin + options.uri.substring(options.uri.indexOf('/ipns/'));
+      options.uri = ipfs_gateway + options.uri.substring(options.uri.indexOf('/ipns/'));
     }
     console.debug(options.uri);
     return options;
