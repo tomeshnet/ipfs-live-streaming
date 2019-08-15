@@ -20,7 +20,7 @@ function getURLParam(key) {
 var ipfs_gw = getURLParam('gw')     // Set IPFS gateway URL to override playback gateway
 var live_ipfs = getURLParam('live') // Set m3u8 file URL to override IPFS live stream
 var vod_ipfs = getURLParam('vod')   // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
-var startFrom= getURLParam("startFrom"); // Timecode to start video playing from
+var startFrom = getURLParam("startFrom"); // Timecode to start video playing from
 
 if (ipfs_gw) {
   ipfs_gateway_self = ipfs_gw;
@@ -41,14 +41,14 @@ if (vod_ipfs) {
 }
 
 // Configure video player
-var live = videojs('live', { liveui: true } );
+var live = videojs('live', { liveui: true });
 
 // For any browser except Safari
 //if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent) === false) {
-  // Override native player for platform and browser consistency
-  videojs.options.html5.nativeAudioTracks = false;
-  videojs.options.html5.nativeVideoTracks = false;
-  videojs.options.hls.overrideNative = true;
+// Override native player for platform and browser consistency
+videojs.options.html5.nativeAudioTracks = false;
+videojs.options.html5.nativeVideoTracks = false;
+videojs.options.hls.overrideNative = true;
 //}
 
 function httpStream() {
@@ -59,8 +59,8 @@ function httpStream() {
   loadStream();
 }
 
-//autoplay counter user for hack
-var autoplayed=0;
+//Video stage counter
+var streamState = 0;
 
 function ipfsStream() {
   live.src({
@@ -69,37 +69,35 @@ function ipfsStream() {
   });
   loadStream();
   videojs.Hls.xhr.beforeRequest = function(options) {
-    
+
     //First hit is m3u8, start playing
-    if (options.uri.indexOf('.m3u8') > 0 && autoplayed==0 ) {
-        if (!autoplayed) { 
-          live.play();
-          autoplayed=1; 
-        }
+    if (options.uri.indexOf('.m3u8') > 0) {
+      if (!streamState) {
+        live.play();
+        streamState = 1;
+      }
     }
-    
-    
-    if (options.uri.indexOf('/ipfs/')>0) {
+
+    if (options.uri.indexOf('/ipfs/') > 0) {
       document.getElementById('loadingTitle').innerHTML = 'Located stream via IPFS';
       document.getElementById('msg').innerHTML = 'Downloading video content...';
       // Replace IPFS gateway of origin with that of this node
       options.uri = ipfs_gateway_origin + options.uri.substring(options.uri.indexOf('/ipfs/'));
       // Do seek counter
 
-      
-      if (autoplayed<3) { 
-        autoplayed++; 
-        if (autoplayed==3) {   
+      if (streamState < 3) {
+        streamState++;
+        if (streamState == 3) {
           if (!startFrom) {
-            setTimeout(function(){ live.liveTracker.seekToLiveEdge;  },1);  
+            setTimeout(function() { live.liveTracker.seekToLiveEdge; }, 1);
           } else {
-            setTimeout(function(){ live.currentTime(startFrom); },1);
+            setTimeout(function() { live.currentTime(startFrom); }, 1);
           }
-        } 
-      } 
+        }
+      }
     }
-    
-    if (options.uri.indexOf('/ipns/')>0) {
+
+    if (options.uri.indexOf('/ipns/') > 0) {
       document.getElementById('loadingTitle').innerHTML = 'Located stream via IPFS';
       document.getElementById('msg').innerHTML = 'Downloading video content...';
       options.uri = ipfs_gateway_origin + options.uri.substring(options.uri.indexOf('/ipns/'));
