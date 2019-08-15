@@ -275,7 +275,7 @@ output "dns_records" {
 output "ssh_access" {
   depends_on = ["digitalocean_record.*"]
   value      = [
-    	"rtmp-server:   ssh -i .keys/id_rsa root@${digitalocean_record.rtmp-server.fqdn}",
+    "rtmp-server:   ssh -i .keys/id_rsa root@${digitalocean_record.rtmp-server.fqdn}",
     "ipfs-mirror-N: ssh -i .keys/id_rsa root@ipfs-mirror-N.${digitalocean_domain.ipfs-live-streaming.name}",
   ]
 }
