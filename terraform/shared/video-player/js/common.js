@@ -89,7 +89,7 @@ function ipfsStream() {
         streamState++;
         if (streamState == 3) {
           if (!startFrom) {
-            setTimeout(function() { live.liveTracker.seekToLiveEdge; }, 1);
+            setTimeout(function() { live.liveTracker.seekToLiveEdge(); }, 1);
           } else {
             setTimeout(function() { live.currentTime(startFrom); }, 1);
           }
