@@ -41,7 +41,7 @@ if (vod_ipfs) {
 }
 
 // Configure video player
-var live = videojs('live');
+var live = videojs('live', { liveui: true } );
 
 // For any browser except Safari
 //if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent) === false) {
