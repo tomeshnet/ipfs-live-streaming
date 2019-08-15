@@ -8,7 +8,6 @@ RTMP_SERVER_PRIVATE_IP=$3
 M3U8_HTTP_URLS=$4
 
 NGINX_VERSION=1.15.0
-
 IPFS_VERSION=0.4.22
 
 # Wait for cloud-init to complete
@@ -129,39 +128,39 @@ cp ~/client-keys/client.conf ~/client-keys/client.ovpn
 # Yggdrasil #
 #############
 
-
+# Download and install Yggdarsail deb from official repo
 wget https://1390-115685026-gh.circle-artifacts.com/0/yggdrasil-0.3.6-amd64.deb
 dpkg -i yggdrasil-0.3.6-amd64.deb
-
-# Configure yggdrasil
 addgroup --system --quiet yggdrasil
-yggdrasil --genconf > /etc/yggdrasil.conf
-chgrp yggdrasil /etc/yggdrasil.conf
-sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
-sed -i "s/IfName: auto/IfName: ygg0/" /etc/yggdrasil.conf
 
 # Generate publisher yggdrasil configurations
 yggdrasil --genconf > ~/client-keys/yggdrasil.conf
 sed -i "s/IfName: auto/IfName: ygg0/" ~/client-keys/yggdrasil.conf
 sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' ~/client-keys/yggdrasil.conf
 
-# Start ygg with client key to extract the yggdrasil ip address
+# Start yggdrasil with the publisher configuration to get the client's yggdrasil IPv6 address
 yggdrasil --useconffile ~/client-keys/yggdrasil.conf &
 YGG_PID=$!
 
-# Wait for yggdrasil to start
+# Wait for yggdrasil with publisher configuration to start
 echo -n Waiting on ygg0
 until [[ `ifconfig ygg0 >/dev/null 2>&1; echo $?` -eq 0 ]]; do
   echo -n "."
   sleep 1
 done
 
-# Read client ygg address and kill process
+# Read publisher yggdrasil IPv6 address and kill process then stop the process
 CLIENT_ADDRESS=`ifconfig ygg0 | grep -E 'inet6 2[0-9a-fA-F]{2}:' | awk '{print $2}'`
 kill -9 $YGG_PID
 
-# Add current ip to peering information for client
+# Add server ip to peering information for publisher configuration
 sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}'`:12345\"\]|" ~/client-keys/yggdrasil.conf
+
+# Generate server yggdrasil configurations
+yggdrasil --genconf > /etc/yggdrasil.conf
+chgrp yggdrasil /etc/yggdrasil.conf
+sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
+sed -i "s/IfName: auto/IfName: ygg0/" /etc/yggdrasil.conf
 
 # Start yggdrasil service
 systemctl daemon-reload
