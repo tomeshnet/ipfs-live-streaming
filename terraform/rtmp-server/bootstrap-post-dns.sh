@@ -18,7 +18,7 @@ certbot certonly -n --agree-tos --standalone --email "${EMAIL_ADDRESS}" -d "${DO
 
 # Configure nginx with HTTPS
 cp -f /tmp/rtmp-server/nginx-default  /usr/local/nginx/conf/conf.d/default
-sed -i "s#__DOMAIN_NAME__#${DOMAIN_NAME}#g"  /usr/local/nginx/conf/conf.d/default
+sed -i "s#__DOMAIN_NAME__#${DOMAIN_NAME}#g" /usr/local/nginx/conf/conf.d/default
 
 cp -f /tmp/rtmp-server/nginx-gateway "/usr/local/nginx/conf/conf.d/ipfs-gateway.${DOMAIN_NAME}"
 sed -i "s#__DOMAIN_NAME__#${DOMAIN_NAME}#g" "/usr/local/nginx/conf/conf.d/ipfs-gateway.${DOMAIN_NAME}"
