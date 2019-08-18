@@ -53,8 +53,6 @@ tar -C /usr/local -xzf /tmp/golang/go1.11.2.linux-amd64.tar.gz
 } >> /etc/profile
 . /etc/profile
 
-# Create directory for generating client keys
-
 ###########
 # OpenVPN #
 ###########
