@@ -76,3 +76,16 @@ sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-gateway-${IPFS_MIRROR_INSTANCE}.${D
 sed -i "s#__IPFS_GATEWAY_ORIGIN__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_SERVER_IPFS_ID}#g" /var/www/html/js/common.js
 sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
+
+############
+# Add Swap #
+############
+
+# Make 3 GB file, format it as swap and activate it
+dd if=/dev/zero of=/swap.img bs=1M count=3072
+mkswap /swap.img
+chmod 600 /swap.img
+swapon /swap.img
+echo /swap.img none swap sw 0 0 >> /etc/fstab
+
+exit 0
