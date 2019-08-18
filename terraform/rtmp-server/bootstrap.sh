@@ -235,7 +235,6 @@ sleep 10
 IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
 echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
 
-
 # Publish message to IPNS
 # Commented out because IPNS is not predictable and could stall the script
 # echo "Serving m3u8 over IPNS is currently disabled" | ipfs add | awk '{print $2}' | ipfs name publish
