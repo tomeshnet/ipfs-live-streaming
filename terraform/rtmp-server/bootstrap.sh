@@ -288,7 +288,7 @@ systemctl start nginx.service
 # Add Swap #
 ############
 
-# Make 3 Gb file, format it as swap and activate it
+# Make 3 GB file, format it as swap and activate it
 dd if=/dev/zero of=/swap.img bs=1M count=3240
 mkswap /swap.img
 chmod 600 /swap.img
