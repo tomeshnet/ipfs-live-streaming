@@ -82,7 +82,8 @@ function ipfsStream() {
       document.getElementById('msg').innerHTML = 'Downloading video content...';
       // Replace IPFS gateway of origin with that of this node
       options.uri = ipfs_gateway_origin + options.uri.substring(options.uri.indexOf('/ipfs/'));
-      // Do seek counter
+
+      // Wait for two .ts chunks to be loaded before applying seek action
 
       if (streamState < 3) {
         streamState++;
