@@ -156,7 +156,7 @@ resource "digitalocean_droplet" "ipfs-mirror" {
     type             = "ssh"
     private_key      = "${file(var.pvt_key)}"
     timeout          = "2m"
-  } "     ${digitalocean_record.ipfs-server-gateway.fqdn} = ${digitalocean_record.ipfs-server-gateway.value}",
+  }
   provisioner "file" {
     source           = "shared/video-player"
     destination      = "/tmp"
