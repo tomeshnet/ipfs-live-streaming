@@ -91,6 +91,7 @@ function ipfsStream() {
             // Seek to live after waiting 1 s
             setTimeout(function() { live.liveTracker.seekToLiveEdge(); }, 1);
           } else {
+            // Seek to startFrom time after waiting 1 s
             setTimeout(function() { live.currentTime(startFrom); }, 1);
           }
         }
