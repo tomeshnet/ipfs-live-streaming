@@ -7,8 +7,8 @@ EMAIL_ADDRESS=$2
 RTMP_SERVER_PRIVATE_IP=$3
 M3U8_HTTP_URLS=$4
 
-YGGDRASIL_GO_VERSION=0.3.2
 NGINX_VERSION=1.15.0
+IPFS_VERSION=0.4.22
 
 IPFS_VERSION=0.4.15
 
@@ -41,17 +41,6 @@ apt install -y \
 
 # Create directory for generating client keys
 mkdir /root/client-keys
-
-# Install golang
-mkdir /tmp/golang
-wget --progress=bar:force https://dl.google.com/go/go1.11.2.linux-amd64.tar.gz -P /tmp/golang
-tar -C /usr/local -xzf /tmp/golang/go1.11.2.linux-amd64.tar.gz
-{
-  echo ''
-  echo '# Add golang path'
-  echo 'export PATH=$PATH:/usr/local/go/bin'
-} >> /etc/profile
-. /etc/profile
 
 ###########
 # OpenVPN #
@@ -141,37 +130,41 @@ cp ~/client-keys/client.conf ~/client-keys/client.ovpn
 # Yggdrasil #
 #############
 
-# Download yggdrasil
-cd ~
-git clone https://github.com/yggdrasil-network/yggdrasil-go.git
-cd yggdrasil-go
-git checkout "v${YGGDRASIL_GO_VERSION}"
-
-# Create custom file to generate yggdrasil keys
-mkdir cmd/genkeys
-cp /tmp/rtmp-server/yggdrasil-genkeys.go cmd/genkeys/main.go
-
-# Build yggdrasil
-./build
-cp yggdrasil /usr/bin/
-cp yggdrasilctl /usr/bin/
-
-# Configure yggdrasil
+# Download and install Yggdarsail deb from official repo
+wget https://1390-115685026-gh.circle-artifacts.com/0/yggdrasil-0.3.6-amd64.deb
+dpkg -i yggdrasil-0.3.6-amd64.deb
 addgroup --system --quiet yggdrasil
+
+# Generate publisher yggdrasil configurations
+yggdrasil --genconf > ~/client-keys/yggdrasil.conf
+sed -i "s/IfName: auto/IfName: ygg0/" ~/client-keys/yggdrasil.conf
+sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' ~/client-keys/yggdrasil.conf
+
+# Start yggdrasil with the publisher configuration to get the client's yggdrasil IPv6 address
+yggdrasil --useconffile ~/client-keys/yggdrasil.conf &
+YGG_PID=$!
+
+# Wait for yggdrasil with publisher configuration to start
+echo -n Waiting on ygg0
+until [[ `ifconfig ygg0 >/dev/null 2>&1; echo $?` -eq 0 ]]; do
+  echo -n "."
+  sleep 1
+done
+
+# Read publisher yggdrasil IPv6 address and kill process then stop the process
+CLIENT_ADDRESS=`ifconfig ygg0 | grep -E 'inet6 2[0-9a-fA-F]{2}:' | awk '{print $2}'`
+kill -9 $YGG_PID
+
+# Add server ip to peering information for publisher configuration
+sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}'`:12345\"\]|" ~/client-keys/yggdrasil.conf
+
+# Generate server yggdrasil configurations
 yggdrasil --genconf > /etc/yggdrasil.conf
 chgrp yggdrasil /etc/yggdrasil.conf
 sed -i 's/Listen: "\[::\]:[0-9]*"/Listen: "\[::\]:12345"/' /etc/yggdrasil.conf
 sed -i "s/IfName: auto/IfName: ygg0/" /etc/yggdrasil.conf
 
-# Generate publisher yggdrasil configurations
-./genkeys > ~/publisher.key
-yggdrasil --genconf > ~/client-keys/yggdrasil.conf
-sed -i "s/EncryptionPublicKey: .*/`cat ~/publisher.key | grep EncryptionPublicKey`/" ~/client-keys/yggdrasil.conf
-sed -i "s/EncryptionPrivateKey: .*/`cat ~/publisher.key | grep EncryptionPrivateKey`/" ~/client-keys/yggdrasil.conf
-sed -i "s|Peers: \[\]|Peers: \[\"tcp://`ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}'`:12345\"\]|" ~/client-keys/yggdrasil.conf
-
 # Start yggdrasil service
-cp contrib/systemd/* /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable yggdrasil
 systemctl start yggdrasil
@@ -201,7 +194,79 @@ make install
 # Configure nginx RTMP server
 mkdir /root/hls
 cp -f /tmp/rtmp-server/nginx.conf /usr/local/nginx/conf/nginx.conf
-sed -i "s/__PUBLISHER_IP_ADDRESS__/`cat ~/publisher.key | grep Address | awk '{print $2}'`/" /usr/local/nginx/conf/nginx.conf
+sed -i "s/__PUBLISHER_IP_ADDRESS__/$CLIENT_ADDRESS/" /usr/local/nginx/conf/nginx.conf
+
+########
+# IPFS #
+########
+
+# Install IPFS
+cd /tmp
+wget "https://dist.ipfs.io/go-ipfs/v${IPFS_VERSION}/go-ipfs_v${IPFS_VERSION}_linux-amd64.tar.gz"
+tar xvfz "go-ipfs_v${IPFS_VERSION}_linux-amd64.tar.gz"
+cp go-ipfs/ipfs /usr/local/bin
+cd ~
+
+# Configure IPFS
+ipfs init
+sed -i 's#"Gateway": "/ip4/127.0.0.1/tcp/8080#"Gateway": "/ip4/0.0.0.0/tcp/8080#' ~/.ipfs/config
+cp -f /tmp/rtmp-server/ipfs.service /etc/systemd/system/ipfs.service
+systemctl daemon-reload
+systemctl enable ipfs
+systemctl start ipfs
+
+# Wait for IPFS daemon to start
+sleep 10
+until [[ `ipfs id >/dev/null 2>&1; echo $?` -eq 0 ]]; do
+  sleep 1
+done
+sleep 10
+
+# Write IPFS identity to client file
+IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
+echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
+
+# Publish message to IPNS
+# Commented out because IPNS is not predictable and could stall the script
+# echo "Serving m3u8 over IPNS is currently disabled" | ipfs add | awk '{print $2}' | ipfs name publish
+
+########################
+# Process video stream #
+########################
+
+# Install video stream processing script
+cp -f /tmp/rtmp-server/process-stream.sh ~/process-stream.sh
+
+# Save settings to a file
+echo "#!/bin/sh" > ~/settings
+echo "export DOMAIN_NAME=\"${DOMAIN_NAME}\"" >> ~/settings
+echo "export RTMP_SERVER_PRIVATE_IP=\"${RTMP_SERVER_PRIVATE_IP}\"" >> ~/settings
+echo "export RTMP_STREAM=\"/root/hls\"" >> ~/settings
+echo "export IPFS_GATEWAY=\"https://ipfs-gateway.${DOMAIN_NAME}\"" >> ~/settings
+chmod +x ~/settings
+
+# Install and start process-stream service
+cp -f /tmp/rtmp-server/process-stream.service /etc/systemd/system/process-stream.service
+systemctl daemon-reload
+systemctl enable process-stream
+systemctl start process-stream
+
+################
+# Video player #
+################
+
+# Install web video player
+rm -rf /var/www/html/* || true
+mkdir -p /var/www/html/ || true
+cp -r /tmp/video-player/* /var/www/html/
+
+# Configure video player
+sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY_ORIGIN__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/js/common.js
+sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
+
+mkdir /usr/local/nginx/conf/conf.d
 
 ########
 # IPFS #
