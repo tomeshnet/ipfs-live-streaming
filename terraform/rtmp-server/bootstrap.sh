@@ -70,7 +70,7 @@ daemon
 
 ca "/usr/share/easy-rsa/keys/ca.crt"
 cert "/usr/share/easy-rsa/keys/server.crt"
-key "/usr/share/easy-rsa/keys/server.key" 
+key "/usr/share/easy-rsa/keys/server.key"
 dh "/usr/share/easy-rsa/keys/dh2048.pem"
 server 10.10.10.0 255.255.255.0
 duplicate-cn
@@ -85,7 +85,7 @@ tun-mtu-extra 32
 EOF
 
 # Enable autostart of all configs
-echo AUTOSTART="all" >> /etc/default/openvpn 
+echo AUTOSTART="all" >> /etc/default/openvpn
 
 # Start daemon
 systemctl daemon-reload
@@ -194,150 +194,6 @@ make install
 mkdir /root/hls
 cp -f /tmp/rtmp-server/nginx.conf /usr/local/nginx/conf/nginx.conf
 sed -i "s/__PUBLISHER_IP_ADDRESS__/$CLIENT_ADDRESS/" /usr/local/nginx/conf/nginx.conf
-
-########
-# IPFS #
-########
-
-# Install IPFS
-cd /tmp
-wget "https://dist.ipfs.io/go-ipfs/v${IPFS_VERSION}/go-ipfs_v${IPFS_VERSION}_linux-amd64.tar.gz"
-tar xvfz "go-ipfs_v${IPFS_VERSION}_linux-amd64.tar.gz"
-cp go-ipfs/ipfs /usr/local/bin
-cd ~
-
-# Configure IPFS
-ipfs init
-sed -i 's#"Gateway": "/ip4/127.0.0.1/tcp/8080#"Gateway": "/ip4/0.0.0.0/tcp/8080#' ~/.ipfs/config
-cp -f /tmp/rtmp-server/ipfs.service /etc/systemd/system/ipfs.service
-systemctl daemon-reload
-systemctl enable ipfs
-systemctl start ipfs
-
-# Wait for IPFS daemon to start
-sleep 10
-until [[ `ipfs id >/dev/null 2>&1; echo $?` -eq 0 ]]; do
-  sleep 1
-done
-sleep 10
-
-# Write IPFS identity to client file
-IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
-echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
-
-# Publish message to IPNS
-# Commented out because IPNS is not predictable and could stall the script
-# echo "Serving m3u8 over IPNS is currently disabled" | ipfs add | awk '{print $2}' | ipfs name publish
-
-########################
-# Process video stream #
-########################
-
-# Install video stream processing script
-cp -f /tmp/rtmp-server/process-stream.sh ~/process-stream.sh
-
-# Save settings to a file
-echo "#!/bin/sh" > ~/settings
-echo "export DOMAIN_NAME=\"${DOMAIN_NAME}\"" >> ~/settings
-echo "export RTMP_SERVER_PRIVATE_IP=\"${RTMP_SERVER_PRIVATE_IP}\"" >> ~/settings
-echo "export RTMP_STREAM=\"/root/hls\"" >> ~/settings
-echo "export IPFS_GATEWAY=\"https://ipfs-gateway.${DOMAIN_NAME}\"" >> ~/settings
-chmod +x ~/settings
-
-# Install and start process-stream service
-cp -f /tmp/rtmp-server/process-stream.service /etc/systemd/system/process-stream.service
-systemctl daemon-reload
-systemctl enable process-stream
-systemctl start process-stream
-
-################
-# Video player #
-################
-
-# Install web video player
-rm -rf /var/www/html/* || true
-mkdir -p /var/www/html/ || true
-cp -r /tmp/video-player/* /var/www/html/
-
-# Configure video player
-sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
-sed -i "s#__IPFS_GATEWAY_ORIGIN__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
-sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/js/common.js
-sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
-
-mkdir /usr/local/nginx/conf/conf.d
-
-########
-# IPFS #
-########
-
-# Install IPFS
-cd /tmp
-wget "https://dist.ipfs.io/go-ipfs/v${IPFS_VERSION}/go-ipfs_v${IPFS_VERSION}_linux-amd64.tar.gz"
-tar xvfz "go-ipfs_v${IPFS_VERSION}_linux-amd64.tar.gz"
-cp go-ipfs/ipfs /usr/local/bin
-cd ~
-
-# Configure IPFS
-ipfs init
-sed -i 's#"Gateway": "/ip4/127.0.0.1/tcp/8080#"Gateway": "/ip4/0.0.0.0/tcp/8080#' ~/.ipfs/config
-cp -f /tmp/rtmp-server/ipfs.service /etc/systemd/system/ipfs.service
-systemctl daemon-reload
-systemctl enable ipfs
-systemctl start ipfs
-
-# Wait for IPFS daemon to start
-sleep 10
-until [[ `ipfs id >/dev/null 2>&1; echo $?` -eq 0 ]]; do
-  sleep 1
-done
-sleep 10
-
-# Write IPFS identity to client file
-IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
-echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
-
-# Publish message to IPNS
-# Commented out because IPNS is not predictable and could stall the script
-# echo "Serving m3u8 over IPNS is currently disabled" | ipfs add | awk '{print $2}' | ipfs name publish
-
-########################
-# Process video stream #
-########################
-
-# Install video stream processing script
-cp -f /tmp/rtmp-server/process-stream.sh ~/process-stream.sh
-
-# Save settings to a file
-echo "#!/bin/sh" > ~/settings
-echo "export DOMAIN_NAME=\"${DOMAIN_NAME}\"" >> ~/settings
-echo "export RTMP_SERVER_PRIVATE_IP=\"${RTMP_SERVER_PRIVATE_IP}\"" >> ~/settings
-echo "export RTMP_STREAM=\"/root/hls\"" >> ~/settings
-echo "export IPFS_GATEWAY=\"https://ipfs-gateway.${DOMAIN_NAME}\"" >> ~/settings
-chmod +x ~/settings
-
-# Install and start process-stream service
-cp -f /tmp/rtmp-server/process-stream.service /etc/systemd/system/process-stream.service
-systemctl daemon-reload
-systemctl enable process-stream
-systemctl start process-stream
-
-################
-# Video player #
-################
-
-# Install web video player
-rm -rf /var/www/html/* || true
-mkdir -p /var/www/html/ || true
-cp -r /tmp/video-player/* /var/www/html/
-
-# Configure video player
-sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
-sed -i "s#__IPFS_GATEWAY_ORIGIN__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
-sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/js/common.js
-sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
-
-mkdir /usr/local/nginx/conf/conf.d
 
 ########
 # IPFS #
