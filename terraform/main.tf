@@ -269,7 +269,7 @@ output "dns_records" {
     "${zipmap(digitalocean_record.ipfs-mirror-v6.*.fqdn, digitalocean_record.ipfs-mirror-v6.*.value)}",
     "${zipmap(digitalocean_record.ipfs-mirror-gateway-v6.*.fqdn, digitalocean_record.ipfs-mirror-gateway-v6.*.value)}",
     "     ${digitalocean_record.publish-openvpn.fqdn} = ${digitalocean_record.publish-openvpn.value}",
-    "     ${digitalocean_record.publish-yggdrasil.fqdn} = ${digitalocean_record.publish-yggdrasil.value}",
+    "   ${digitalocean_record.publish-yggdrasil.fqdn} = ${digitalocean_record.publish-yggdrasil.value}",
   ]
 }
 output "ssh_access" {
