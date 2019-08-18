@@ -88,6 +88,7 @@ function ipfsStream() {
         streamState++;
         if (streamState == 3) {
           if (!startFrom) {
+            // Seek to live after waiting 1 s
             setTimeout(function() { live.liveTracker.seekToLiveEdge(); }, 1);
           } else {
             setTimeout(function() { live.currentTime(startFrom); }, 1);
