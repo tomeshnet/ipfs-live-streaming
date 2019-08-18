@@ -31,7 +31,7 @@ apt install -y \
   build-essential \
   certbot \
   git \
-  jq \  
+  jq \
   libpcre3 \
   libpcre3-dev \
   libssl-dev \
