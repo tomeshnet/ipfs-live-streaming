@@ -95,10 +95,9 @@ function ipfsStream() {
       }
     }
 
-    if (options.uri.indexOf('/ipns/') > 0) {
+    if (options.uri.indexOf('/ipns/')>0) {
       document.getElementById('loadingTitle').innerHTML = 'Located stream via IPFS';
       document.getElementById('msg').innerHTML = 'Downloading video content...';
-      // Use specified IPFS gateway by replacing it in the uri
       options.uri = ipfs_gateway + options.uri.substring(options.uri.indexOf('/ipns/'));
     }
     console.debug(options.uri);
