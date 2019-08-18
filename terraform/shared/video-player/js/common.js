@@ -58,7 +58,7 @@ function httpStream() {
   loadStream();
 }
 
-//Video stage counter
+// Counter to track video playback state
 var streamState = 0;
 
 function ipfsStream() {
