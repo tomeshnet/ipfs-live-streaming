@@ -156,7 +156,7 @@ resource "digitalocean_droplet" "ipfs-mirror" {
     type             = "ssh"
     private_key      = "${file(var.pvt_key)}"
     timeout          = "2m"
-  }
+  } "     ${digitalocean_record.ipfs-server-gateway.fqdn} = ${digitalocean_record.ipfs-server-gateway.value}",
   provisioner "file" {
     source           = "shared/video-player"
     destination      = "/tmp"
@@ -258,7 +258,6 @@ output "dns_records" {
   value      = [
     "                  ${digitalocean_domain.ipfs-live-streaming.name} = ${digitalocean_domain.ipfs-live-streaming.ip_address}",
     "      ${digitalocean_record.rtmp-server.fqdn} = ${digitalocean_record.rtmp-server.value}",
-    "      ${digitalocean_record.rtmp-server.fqdn} = ${digitalocean_record.rtmp-server.value}",
     "${zipmap(digitalocean_record.ipfs-mirror.*.fqdn, digitalocean_record.ipfs-mirror.*.value)}",
     "${zipmap(digitalocean_record.ipfs-mirror-gateway.*.fqdn, digitalocean_record.ipfs-mirror-gateway.*.value)}",
     "      ${digitalocean_record.rtmp-server-private.fqdn} = ${digitalocean_record.rtmp-server-private.value}",
@@ -269,7 +268,7 @@ output "dns_records" {
     "${zipmap(digitalocean_record.ipfs-mirror-v6.*.fqdn, digitalocean_record.ipfs-mirror-v6.*.value)}",
     "${zipmap(digitalocean_record.ipfs-mirror-gateway-v6.*.fqdn, digitalocean_record.ipfs-mirror-gateway-v6.*.value)}",
     "     ${digitalocean_record.publish-openvpn.fqdn} = ${digitalocean_record.publish-openvpn.value}",
-    "     ${digitalocean_record.publish-yggdrasil.fqdn} = ${digitalocean_record.publish-yggdrasil.value}",
+    "   ${digitalocean_record.publish-yggdrasil.fqdn} = ${digitalocean_record.publish-yggdrasil.value}",
   ]
 }
 output "ssh_access" {

@@ -27,17 +27,17 @@ curl -sSL https://agent.digitalocean.com/install.sh | sh
 # Install standard tools
 apt update
 apt install -y \
+  bc \
   build-essential \
+  certbot \
   git \
+  jq \  
   libpcre3 \
   libpcre3-dev \
   libssl-dev \
   zlibc \
   zlib1g \
-  zlib1g-dev \
-  bc \
-  certbot \
-  jq 
+  zlib1g-dev
 
 # Create directory for generating client keys
 mkdir /root/client-keys
@@ -52,8 +52,6 @@ tar -C /usr/local -xzf /tmp/golang/go1.11.2.linux-amd64.tar.gz
   echo 'export PATH=$PATH:/usr/local/go/bin'
 } >> /etc/profile
 . /etc/profile
-
-# Create directory for generating client keys
 
 ###########
 # OpenVPN #
@@ -234,7 +232,6 @@ sleep 10
 # Write IPFS identity to client file
 IPFS_ID=`ipfs id | jq .ID | sed 's/"//g'`
 echo -n "$IPFS_ID" > ~/client-keys/ipfs_id
-
 
 # Publish message to IPNS
 # Commented out because IPNS is not predictable and could stall the script
