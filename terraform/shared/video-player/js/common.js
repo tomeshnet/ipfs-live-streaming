@@ -84,7 +84,6 @@ function ipfsStream() {
       options.uri = ipfs_gateway_origin + options.uri.substring(options.uri.indexOf('/ipfs/'));
 
       // Wait for two .ts chunks to be loaded before applying seek action
-
       if (streamState < 3) {
         streamState++;
         if (streamState == 3) {
