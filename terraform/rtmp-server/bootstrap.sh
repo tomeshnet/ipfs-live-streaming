@@ -280,4 +280,16 @@ cp /tmp/rtmp-server/nginx.service /etc/systemd/system/nginx.service
 systemctl daemon-reload
 systemctl enable nginx.service
 systemctl start nginx.service
+
+############
+# Add Swap #
+############
+
+# Make 3 GB file, format it as swap and activate it
+dd if=/dev/zero of=/swap.img bs=1M count=3072
+mkswap /swap.img
+chmod 600 /swap.img
+swapon /swap.img
+echo /swap.img none swap sw 0 0 >> /etc/fstab
+
 exit 0
