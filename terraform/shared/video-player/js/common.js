@@ -80,8 +80,8 @@ function ipfsStream() {
     if (options.uri.indexOf('/ipfs/') > 0) {
       document.getElementById('loadingTitle').innerHTML = 'Located stream via IPFS';
       document.getElementById('msg').innerHTML = 'Downloading video content...';
-      // Replace IPFS gateway of origin with that of this node
-      options.uri = ipfs_gateway_origin + options.uri.substring(options.uri.indexOf('/ipfs/'));
+      // Use specified IPFS gateway by replacing it in the uri
+      options.uri = ipfs_gateway + options.uri.substring(options.uri.indexOf('/ipfs/'));
 
       // Wait for two .ts chunks to be loaded before applying seek action
       if (streamState < 3) {
@@ -101,6 +101,7 @@ function ipfsStream() {
     if (options.uri.indexOf('/ipns/') > 0) {
       document.getElementById('loadingTitle').innerHTML = 'Located stream via IPFS';
       document.getElementById('msg').innerHTML = 'Downloading video content...';
+      // Use specified IPFS gateway by replacing it in the uri
       options.uri = ipfs_gateway + options.uri.substring(options.uri.indexOf('/ipns/'));
     }
     console.debug(options.uri);
