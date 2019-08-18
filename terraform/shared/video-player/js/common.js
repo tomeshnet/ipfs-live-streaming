@@ -69,7 +69,7 @@ function ipfsStream() {
   loadStream();
   videojs.Hls.xhr.beforeRequest = function(options) {
 
-    //First hit is m3u8, start playing
+    // When .m3u8 is loaded, start playback and transition to streamState = 1
     if (options.uri.indexOf('.m3u8') > 0) {
       if (!streamState) {
         live.play();
