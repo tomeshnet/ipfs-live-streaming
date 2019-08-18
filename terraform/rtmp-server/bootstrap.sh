@@ -27,17 +27,17 @@ curl -sSL https://agent.digitalocean.com/install.sh | sh
 # Install standard tools
 apt update
 apt install -y \
+  bc \
   build-essential \
+  certbot \
   git \
+  jq \  
   libpcre3 \
   libpcre3-dev \
   libssl-dev \
   zlibc \
   zlib1g \
-  zlib1g-dev \
-  bc \
-  certbot \
-  jq 
+  zlib1g-dev
 
 # Create directory for generating client keys
 mkdir /root/client-keys
