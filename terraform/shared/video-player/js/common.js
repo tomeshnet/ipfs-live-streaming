@@ -21,6 +21,43 @@ var live_ipfs = getURLParam('live') // Set m3u8 file URL to override IPFS live s
 var vod_ipfs = getURLParam('vod')   // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
 var startFrom = getURLParam("startFrom"); // Timecode to start video playing from
 
+// If startFrom starts with a Q its probaly a IPFS hash so calculate to correct startFrom
+if (startFrom && startFrom.indexOf("Q")==0) {
+  hash=startFrom;
+  // Disable incase has is not in the list
+  startFrom=undefined;
+
+  m3u8=getURLParam("m3u8");
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      file = this.response;
+      fileline=file.split("\n");
+      counter=0;
+      // Loop through entries in the file
+      for (var a=0; a<fileline.length; a++) {
+        // Look for EXTINF tags that describe the lenght of the chunk
+        if (fileline[a].indexOf("EXTINF:")>0) {
+          // Parse out the lenght of the chunk
+          var number=  fileline[a].substring(fileline[a].indexOf("EXTINF:")+7);
+          number=number.substring(0,number.length-1);
+          // Skip over chunk hash information
+          a++;
+          if (fileline[a].indexOf(hash)>0) {
+            // if hash is found set the startFrom to the counter and exit;
+            startFrom=counter;
+            return;
+          }
+          // Add chunk length to counter
+          counter=counter + parseFloat(number);
+        }
+      }
+    }
+  };
+  xmlhttp.open("GET", m3u8_ipfs, true);
+  xmlhttp.send();
+}
+
 if (ipfs_gw) {
   ipfs_gateway = ipfs_gw;
 }
