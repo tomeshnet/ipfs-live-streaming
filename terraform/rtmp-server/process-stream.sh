@@ -23,10 +23,6 @@ while true; do
 				if [[ "$(grep -B2 ${nextfile} ${what}.m3u8 | head -n1)" == "#EXT-X-DISCONTINUITY" ]]; then
 					reset_stream_marker=" #EXT-X-DISCONTINUITY"
 				fi
-				if [[ "$(DISCONNET)" == "1" ]]; then
-					reset_stream_marker=" #EXT-X-DISCONTINUITY"
-					DISCONNECT=0
-				fi
 
 			    # Current UTC date for the log
 			    time=`date "+%F-%H-%M-%S"`
@@ -57,9 +53,11 @@ while true; do
 			    	fi
 			    	echo "#EXTM3U" > current.m3u8
 			    	echo "#EXT-X-VERSION:3" >> current.m3u8
-			    	echo "#EXT-X-TARGETDURATION:${HLS_TIME}" >> current.m3u8
+			    	echo "#EXT-X-TARGETDURATION:10" >> current.m3u8
 			    	echo "#EXT-X-MEDIA-SEQUENCE:${sequence}" >> current.m3u8
-			    	tail -n ${M3U8_SIZE} ~/process-stream.log | awk '{print $6"#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' | sed 's/#EXT-X-DISCONTINUITY#/#EXT-X-DISCONTINUITY\n#/g' >> current.m3u8
+						echo "#EXT-X-PLAYLIST-TYPE:EVENT" >> current.m3u8
+
+			    	cat  ~/process-stream.log | awk '{print $6"#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' | sed 's/#EXT-X-DISCONTINUITY#/#EXT-X-DISCONTINUITY\n#/g' >> current.m3u8
 
 			    	# Add m3u8 file to IPFS and IPNS publish (uncomment to enable)
 			    	#m3u8hash=$(ipfs add current.m3u8 | awk '{print $2}')
