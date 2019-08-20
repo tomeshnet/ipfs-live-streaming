@@ -8,6 +8,7 @@ rm -rf ~/hls/*
 cd ~/hls
 
 what="stream1"
+RESTARTED="1"
 
 while true; do
 	nextfile=$(cat ${what}.m3u8 | tail -n1)
@@ -18,8 +19,9 @@ while true; do
       if ! [ -z "{$timecode}" ]; then
 
         reset_stream_marker=''
-        if [[ "$(grep -B2 ${nextfile} ${what}.m3u8 | head -n1)" == "#EXT-X-DISCONTINUITY" ]]; then
+        if [[ "$(grep -B2 ${nextfile} ${what}.m3u8 | head -n1)" == "#EXT-X-DISCONTINUITY" || "${RESTARTED}" == "1" ]]; then
           reset_stream_marker=" #EXT-X-DISCONTINUITY"
+	  RESTARTED="0"
         fi
 
         # Current UTC date for the log
@@ -55,7 +57,7 @@ while true; do
 
           echo "#EXTM3U" >current.m3u8
           echo "#EXT-X-VERSION:3" >>current.m3u8
-          echo "#EXT-X-TARGETDURATION:10" >>current.m3u8
+          echo "#EXT-X-TARGETDURATION:20" >>current.m3u8
           echo "#EXT-X-MEDIA-SEQUENCE:${sequence}" >>current.m3u8
           echo "#EXT-X-PLAYLIST-TYPE:EVENT" >>current.m3u8
 
