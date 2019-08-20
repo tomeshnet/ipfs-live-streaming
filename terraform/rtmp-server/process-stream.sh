@@ -7,9 +7,7 @@
 rm -rf ~/hls/*
 cd ~/hls
 
-DISCONNET=1
 what="stream1"
-M3U8_SIZE=5
 
 while true; do
 	nextfile=$(cat ${what}.m3u8 | tail -n1)
@@ -53,10 +51,8 @@ while true; do
           # Write the m3u8 file with the new IPFS hashes from the log
           totalLines="$(wc -l ~/process-stream.log | awk '{print $1}')"
 
-          sequence=0
-          if (("${totalLines}" > ${M3U8_SIZE})); then
-            sequence=$(expr ${totalLines} - ${M3U8_SIZE})
-          fi
+          sequence=$(expr ${totalLines} - ${M3U8_SIZE})
+
           echo "#EXTM3U" >current.m3u8
           echo "#EXT-X-VERSION:3" >>current.m3u8
           echo "#EXT-X-TARGETDURATION:10" >>current.m3u8
@@ -76,6 +72,6 @@ while true; do
       fi
     fi
   else
-    sleep 5
+    sleep 1
   fi
 done
