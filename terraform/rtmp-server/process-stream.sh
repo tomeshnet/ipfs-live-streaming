@@ -11,7 +11,7 @@ what="stream1"
 RESTARTED="1"
 
 while true; do
-	nextfile=$(cat ${what}.m3u8 | tail -n1)
+  nextfile=$(cat ${what}.m3u8 | tail -n1)
 
   if [ -f "${nextfile}" ]; then
     timecode=$(grep -B1 ${nextfile} ${what}.m3u8 | head -n1 | awk -F : '{print $2}' | tr -d ,)
@@ -28,37 +28,21 @@ while true; do
         time=$(date "+%F-%H-%M-%S")
 
         # Add ts file to IPFS
-
-        ret=$(
-          ipfs add ${nextfile} 2>/dev/null >~/tmp.txt
-          echo $?
-        )
-        attempts=5
-        until [[ ${ret} -eq 0 || ${attempts} -eq 0 ]]; do
-          # Wait and retry
-          sleep 1
-          ret=$(
-            ipfs add ${nextfile} 2>/dev/null >~/tmp.txt
-            echo $?
-          )
-          attempts=$((attempts - 1))
-        done
-        if [[ ${ret} -eq 0 ]]; then
+        hash=`ipfs add -Q ${nextfile}`
+	
+	if [[ -z "${hash}" ]]; then
+	   echo ${nextfile} Add Failed, skipping for retry
+	else
           # Update the log with the future name (hash already there)
-          echo $(cat ~/tmp.txt) ${time}.ts ${timecode}${reset_stream_marker} >>~/process-stream.log
+          echo added ${hash} ${nextfile} ${time}.ts ${timecode}${reset_stream_marker} >>~/process-stream.log
 
           # Remove nextfile and tmp.txt
           rm -f ${nextfile} ~/tmp.txt
 
-          # Write the m3u8 file with the new IPFS hashes from the log
-          totalLines="$(wc -l ~/process-stream.log | awk '{print $1}')"
-
-          sequence=$(expr ${totalLines} - ${M3U8_SIZE})
-
           echo "#EXTM3U" >current.m3u8
           echo "#EXT-X-VERSION:3" >>current.m3u8
           echo "#EXT-X-TARGETDURATION:20" >>current.m3u8
-          echo "#EXT-X-MEDIA-SEQUENCE:${sequence}" >>current.m3u8
+          echo "#EXT-X-MEDIA-SEQUENCE:0" >>current.m3u8
           echo "#EXT-X-PLAYLIST-TYPE:EVENT" >>current.m3u8
 
           cat ~/process-stream.log | awk '{print $6"#EXTINF:"$5",\n'${IPFS_GATEWAY}'/ipfs/"$2}' | sed 's/#EXT-X-DISCONTINUITY#/#EXT-X-DISCONTINUITY\n#/g' >>current.m3u8
