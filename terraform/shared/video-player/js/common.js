@@ -26,7 +26,6 @@ if (startFrom && startFrom.indexOf("Q")==0) {
   hash=startFrom;
   // Disable incase has is not in the list
   startFrom=undefined;
-
   m3u8=getURLParam("m3u8");
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
