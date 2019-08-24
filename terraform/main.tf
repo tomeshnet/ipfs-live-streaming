@@ -99,7 +99,7 @@ resource "null_resource" "rtmp-server" {
 
   provisioner "remote-exec" {
     inline           = [
-      "/tmp/rtmp-server/bootstrap-post-dns.sh ${file(var.domain_name)} ${file(var.email_address)}",
+      "/tmp/rtmp-server/bootstrap-post-dns.sh ${file(var.domain_name)} ${file(var.email_address)} ${file(var.dryrun)}",
     ]
   }
 }
@@ -239,7 +239,7 @@ resource "null_resource" "ipfs-mirror" {
   }
   provisioner "remote-exec" {
     inline           = [
-      "/tmp/ipfs-mirror/bootstrap-post-dns.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address)}",
+      "/tmp/ipfs-mirror/bootstrap-post-dns.sh ${count.index} ${file(var.domain_name)} ${file(var.email_address)} ${file(var.dryrun)}",
     ]
   }
 }
