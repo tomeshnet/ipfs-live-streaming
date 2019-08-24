@@ -44,7 +44,7 @@ if (start_from && +start_from != start_from) {
           // Skip over chunk hash information
           a++;
           if (fileline[a].indexOf(hash) > 0) {
-            // if hash is found set the start_from to the counter and exit;
+            // If hash is found set the start_from to the counter and exit;
             start_from = counter;
             return;
           }
