@@ -148,7 +148,11 @@ installed on your local machine, which can be the same device running OBS Studio
 1. Set an email address to use as contact email for Let's Encrypt:
 
         echo -n YOUR_EMAIL_ADDRESS > .keys/email_address
-
+        
+   **DEVELOPER TIP** Set dryrun to use Let's Encrypt staging servers for testing
+   
+        echo -n true > .keys/dryrun
+        
 1. Obtain a read-write access token from your Digital Ocean account's `API` tab, then store
     it in your local environment:
 
