@@ -36,7 +36,7 @@ if (start_from && +start_from != start_from) {
       counter = 0;
       // Loop through entries in the file
       for (var a = 0; a < fileline.length; a++) {
-        // Look for EXTINF tags that describe the lenght of the chunk
+        // Look for EXTINF tags that describe the length of the chunk
         if (fileline[a].indexOf("EXTINF:") > 0) {
           // Parse out the lenght of the chunk
           var number = fileline[a].substring(fileline[a].indexOf("EXTINF:") + 7);
