@@ -25,7 +25,7 @@ var start_from = getURLParam("from"); // Timecode to start video playing from
 var hash="";
 if (start_from && +start_from != start_from) {
   hash = start_from;
-  // remove start_from value since the hash may not be in the list
+  // Remove start_from value since the hash may not be in the list
   start_from = undefined;
   m3u8 = getURLParam("m3u8");
   var xmlhttp = new XMLHttpRequest();
