@@ -1,5 +1,5 @@
 // IPFS config
-var ipfs_gateway = '__IPFS_GATEWAY_SELF__';     // IPFS gateway
+var ipfs_gateway = '__IPFS_GATEWAY_SELF__'; // IPFS gateway
 
 // Live stream config
 var m3u8_ipfs = 'live.m3u8';                                          // HTTP or local path to m3u8 file containing IPFS content
@@ -19,36 +19,37 @@ function getURLParam(key) {
 var ipfs_gw = getURLParam('gw')     // Set IPFS gateway URL to override playback gateway
 var live_ipfs = getURLParam('live') // Set m3u8 file URL to override IPFS live stream
 var vod_ipfs = getURLParam('vod')   // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
-var startFrom = getURLParam("startFrom"); // Timecode to start video playing from
+var start_from = getURLParam("from"); // Timecode to start video playing from
 
-// If startFrom starts with a Q its probaly a IPFS hash so calculate to correct startFrom
-if (startFrom && startFrom.indexOf("Q")==0) {
-  hash=startFrom;
-  // Disable incase has is not in the list
-  startFrom=undefined;
-  m3u8=getURLParam("m3u8");
+// If startFrom is not a number  it's probaly an IPFS hash so calculate to correct startFrom
+var hash="";
+if (start_from && +start_from != start_from) {
+  hash = start_from;
+  // remove start_from value since the hash may not be in the list
+  start_from = undefined;
+  m3u8 = getURLParam("m3u8");
   var xmlhttp = new XMLHttpRequest();
-  xmlhttp.onreadystatechange = function() {
+  xmlhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
       file = this.response;
-      fileline=file.split("\n");
-      counter=0;
+      fileline = file.split("\n");
+      counter = 0;
       // Loop through entries in the file
-      for (var a=0; a<fileline.length; a++) {
+      for (var a = 0; a < fileline.length; a++) {
         // Look for EXTINF tags that describe the lenght of the chunk
-        if (fileline[a].indexOf("EXTINF:")>0) {
+        if (fileline[a].indexOf("EXTINF:") > 0) {
           // Parse out the lenght of the chunk
-          var number=  fileline[a].substring(fileline[a].indexOf("EXTINF:")+7);
-          number=number.substring(0,number.length-1);
+          var number = fileline[a].substring(fileline[a].indexOf("EXTINF:") + 7);
+          number = number.substring(0, number.length - 1);
           // Skip over chunk hash information
           a++;
-          if (fileline[a].indexOf(hash)>0) {
-            // if hash is found set the startFrom to the counter and exit;
-            startFrom=counter;
+          if (fileline[a].indexOf(hash) > 0) {
+            // if hash is found set the start_from to the counter and exit;
+            start_from = counter;
             return;
           }
           // Add chunk length to counter
-          counter=counter + parseFloat(number);
+          counter = counter + parseFloat(number);
         }
       }
     }
@@ -131,7 +132,7 @@ function ipfsStream() {
       }
     }
 
-    if (options.uri.indexOf('/ipns/')>0) {
+    if (options.uri.indexOf('/ipns/') > 0) {
       document.getElementById('loadingTitle').innerHTML = 'Located stream via IPFS';
       document.getElementById('msg').innerHTML = 'Downloading video content...';
       options.uri = ipfs_gateway + options.uri.substring(options.uri.indexOf('/ipns/'));
