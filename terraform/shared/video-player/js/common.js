@@ -6,20 +6,32 @@ var m3u8_ipfs = 'live.m3u8';                                          // HTTP or
 // var m3u8_ipfs = '__IPFS_GATEWAY_ORIGIN__/ipns/__IPFS_ID_ORIGIN__'; // IPNS path to m3u8 file containing IPFS content (uncomment to enable)
 var m3u8_http_urls = [__M3U8_HTTP_URLS__];                            // HTTP or local paths to m3u8 file containing HTTP content (optional)
 
-// Configure default playback behaviour
-var stream_type = 'application/x-mpegURL'; // Type of video stream
-var stream_url_ipfs = m3u8_ipfs;           // Source of IPFS video stream
-var stream_urls_http = m3u8_http_urls;     // Source of HTTP video stream
-
 // Process URL params
 function getURLParam(key) {
   return new URLSearchParams(window.location.search).get(key);
 }
 
-var ipfs_gw = getURLParam('gw')       // Set IPFS gateway URL to override playback gateway
-var live_ipfs = getURLParam('live')   // Set m3u8 file URL to override IPFS live stream
-var vod_ipfs = getURLParam('vod')     // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
-var start_from = getURLParam("from"); // Timecode to start video playing from
+var ipfs_gw = getURLParam('gw')
+if (getURLParam('m3u8'))
+  var m3u8_ipfs = getURLParam('m3u8')   // Set m3u8 file URL to override IPFS live stream
+var vod_ipfs = getURLParam('vod')       // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
+var start_from = getURLParam("from");   // Timecode to start video playing from
+
+// Configure default playback behaviour
+var stream_type = 'application/x-mpegURL'; // Type of video stream
+var stream_url_ipfs = m3u8_ipfs;           // Source of IPFS video stream
+var stream_urls_http = m3u8_http_urls;     // Source of HTTP video stream
+
+if (ipfs_gw) {
+  ipfs_gateway = ipfs_gw;
+}
+
+if (vod_ipfs) {
+  stream_type = 'video/mp4';
+  stream_url_ipfs = ipfs_gateway + '/ipfs/' + vod_ipfs;
+  stream_urls_http = [];
+  document.getElementById('selectingTitle').innerHTML = 'Select Recorded Stream Source';
+}
 
 // If start_from is not a number it's probably an IPFS hash so calculate to correct start_from
 var hash="";
@@ -27,7 +39,6 @@ if (start_from && +start_from != start_from) {
   hash = start_from;
   // Remove start_from value since the hash may not be in the list
   start_from = undefined;
-  m3u8 = getURLParam("m3u8");
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
@@ -56,24 +67,6 @@ if (start_from && +start_from != start_from) {
   };
   xmlhttp.open("GET", m3u8_ipfs, true);
   xmlhttp.send();
-}
-
-if (ipfs_gw) {
-  ipfs_gateway = ipfs_gw;
-}
-
-if (live_ipfs) {
-  stream_type = 'application/x-mpegURL';
-  stream_url_ipfs = live_ipfs;
-  stream_urls_http = m3u8_http_urls;
-}
-
-if (vod_ipfs) {
-  stream_type = 'video/mp4';
-  stream_url_ipfs = ipfs_gateway + '/ipfs/' + vod_ipfs;
-  stream_urls_http = [];
-
-  document.getElementById('selectingTitle').innerHTML = 'Select Recorded Stream Source';
 }
 
 // Configure video player
