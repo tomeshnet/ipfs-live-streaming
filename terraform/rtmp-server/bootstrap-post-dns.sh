@@ -25,6 +25,6 @@ sed -i "s#__DOMAIN_NAME__#${DOMAIN_NAME}#g" "/usr/local/nginx/conf/conf.d/ipfs-g
 
 # Configure auto-renewals
 echo "30 2 * * 1 certbot renew >> /var/log/letsencrypt/letsencrypt.log" >> /etc/crontab
-echo "35 2 * * 1 systemctl reload nginx" >> /etc/crontab
+echo "35 2 * * 1 root systemctl reload nginx" >> /etc/crontab
 
 systemctl start nginx.service
