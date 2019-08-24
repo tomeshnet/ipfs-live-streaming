@@ -38,7 +38,7 @@ if (start_from && +start_from != start_from) {
       for (var a = 0; a < fileline.length; a++) {
         // Look for EXTINF tags that describe the length of the chunk
         if (fileline[a].indexOf("EXTINF:") > 0) {
-          // Parse out the lenght of the chunk
+          // Parse out the length of the chunk
           var number = fileline[a].substring(fileline[a].indexOf("EXTINF:") + 7);
           number = number.substring(0, number.length - 1);
           // Skip over chunk hash information
