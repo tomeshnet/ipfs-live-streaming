@@ -21,7 +21,7 @@ var live_ipfs = getURLParam('live')   // Set m3u8 file URL to override IPFS live
 var vod_ipfs = getURLParam('vod')     // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
 var start_from = getURLParam("from"); // Timecode to start video playing from
 
-// If start_from is not a number it's probaly an IPFS hash so calculate to correct start_from
+// If start_from is not a number it's probably an IPFS hash so calculate to correct start_from
 var hash="";
 if (start_from && +start_from != start_from) {
   hash = start_from;
