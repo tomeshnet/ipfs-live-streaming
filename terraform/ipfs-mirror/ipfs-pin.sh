@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 IPFS_REF=$1
 
