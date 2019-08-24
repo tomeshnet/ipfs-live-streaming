@@ -114,12 +114,12 @@ function ipfsStream() {
       if (streamState < 3) {
         streamState++;
         if (streamState == 3) {
-          if (!startFrom) {
+          if (!start_from) {
             // Seek to live after waiting 1 s
             setTimeout(function() { live.liveTracker.seekToLiveEdge(); }, 1);
           } else {
-            // Seek to startFrom time after waiting 1 s
-            setTimeout(function() { live.currentTime(startFrom); }, 1);
+            // Seek to start_from time after waiting 1 s
+            setTimeout(function() { live.currentTime(start_from); }, 1);
           }
         }
       }
