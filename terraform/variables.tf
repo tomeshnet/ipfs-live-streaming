@@ -24,3 +24,6 @@ variable "m3u8_http_urls" {
   description = "Optional comma-separated list of URLs to m3u8 over HTTP '<url_1>','<url_2>'"
   default = ""
 }
+variable "dryrun" {
+  default = ".keys/dryrun"
+}

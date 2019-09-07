@@ -4,6 +4,7 @@ set -e
 
 DOMAIN_NAME=$1
 EMAIL_ADDRESS=$2
+DRY_RUN=$3
 
 #######################
 # nginx + letsencrypt #
@@ -14,7 +15,12 @@ openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
 
 # Get letsencrypt certificates with certbot
 systemctl stop nginx.service
-certbot certonly -n --agree-tos --standalone --email "${EMAIL_ADDRESS}" -d "${DOMAIN_NAME}" -d "ipfs-server.${DOMAIN_NAME}" -d "ipfs-gateway.${DOMAIN_NAME}"
+
+if [[ "${DRY_RUN}" == "true" ]]; then
+  certbot certonly -n --dryrun --agree-tos --standalone --email "${EMAIL_ADDRESS}" -d "${DOMAIN_NAME}" -d "ipfs-server.${DOMAIN_NAME}" -d "ipfs-gateway.${DOMAIN_NAME}"
+else
+  certbot certonly -n --agree-tos --standalone --email "${EMAIL_ADDRESS}" -d "${DOMAIN_NAME}" -d "ipfs-server.${DOMAIN_NAME}" -d "ipfs-gateway.${DOMAIN_NAME}"
+fi
 
 # Configure nginx with HTTPS
 cp -f /tmp/rtmp-server/nginx-default /usr/local/nginx/conf/conf.d/default
