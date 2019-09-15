@@ -7,7 +7,6 @@ EMAIL_ADDRESS=$2
 RTMP_SERVER_PRIVATE_IP=$3
 M3U8_HTTP_URLS=$4
 
-YGGDRASIL_GO_VERSION=0.3.2
 NGINX_VERSION=1.15.0
 IPFS_VERSION=0.4.22
 
@@ -190,7 +189,7 @@ git clone https://github.com/arut/nginx-rtmp-module.git
 
 # Build nginx with nginx-rtmp
 cd "nginx-${NGINX_VERSION}"
-./configure --with-http_ssl_module --with-http_v2_module --add-module=../nginx-rtmp-module
+./configure --with-http_ssl_module --with-http_v2_module --add-module=../nginx-rtmp-module --with-cc-opt=-Wno-error
 make
 make install
 
