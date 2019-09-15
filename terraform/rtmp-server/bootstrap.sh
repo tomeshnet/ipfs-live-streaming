@@ -125,6 +125,8 @@ echo "</key>" >> ~/client-keys/client.conf
 # Copy config for Windows
 cp ~/client-keys/client.conf ~/client-keys/client.ovpn
 
+cd ~
+
 #############
 # Yggdrasil #
 #############
@@ -132,6 +134,10 @@ cp ~/client-keys/client.conf ~/client-keys/client.ovpn
 # Download and install Yggdarsail deb from official repo
 wget https://1390-115685026-gh.circle-artifacts.com/0/yggdrasil-0.3.6-amd64.deb
 dpkg -i yggdrasil-0.3.6-amd64.deb
+
+# Stop yggdrasil if running
+systemctl stop yggdrasil
+
 addgroup --system --quiet yggdrasil
 
 # Generate publisher yggdrasil configurations
