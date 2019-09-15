@@ -63,8 +63,8 @@ export EASY_RSA="${EASY_RSA:-.}"
 # Create server file
 cat <<"EOF"> /etc/openvpn/openvpn.conf
 port 1194
+local ::
 proto udp
-proto udp6
 dev tun
 daemon
 
