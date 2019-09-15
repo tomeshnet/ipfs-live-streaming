@@ -89,7 +89,7 @@ echo AUTOSTART="all" >> /etc/default/openvpn
 
 # Start daemon
 systemctl daemon-reload
-service openvpn restart
+systemctl restart openvpn
 
 # Grab my IP address
 myip=$(ifconfig eth0 | grep inet | grep -v inet6 | awk '{print $2}')
