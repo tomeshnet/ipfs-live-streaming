@@ -129,6 +129,10 @@ cp ~/client-keys/client.conf ~/client-keys/client.ovpn
 # Yggdrasil #
 #############
 
+# Flag yggdrasil ipv6 addresses as non-internet addresses
+echo "label 200::/7 6" | tee --append /etc/gai.conf
+echo "label 300::/7 6" | tee --append /etc/gai.conf
+  
 # Download and install Yggdarsail deb from official repo
 wget https://1390-115685026-gh.circle-artifacts.com/0/yggdrasil-0.3.6-amd64.deb
 dpkg -i yggdrasil-0.3.6-amd64.deb
