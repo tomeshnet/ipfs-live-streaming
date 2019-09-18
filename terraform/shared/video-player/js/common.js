@@ -68,9 +68,9 @@ if (start_from && +start_from != start_from) {
   xmlhttp.open("GET", m3u8_ipfs, true);
   xmlhttp.send();
 }
-// Function to get hash from timeindex
 
-function getCurrentHash(timeindex) {
+// Function to get hash from timeindex
+function getHashFromTime(timeindex) {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET", m3u8_ipfs, false);
   xmlhttp.send();
@@ -86,12 +86,12 @@ function getCurrentHash(timeindex) {
         // Parse out the length of the chunk
         var number = fileline[a].substring(fileline[a].indexOf("EXTINF:") + 7);
         number = number.substring(0, number.length - 1);
-        counter = counter  + parseFloat(number);
+        counter = counter + parseFloat(number);
 
         // Parse out current hash
         var hash = fileline[a+1].substring(fileline[a+1].lastIndexOf("/") + 1);
 
-        // Check if the current counter is larger then timeindex requested
+        // Check if the current counter is larger than timeindex requested
         if (counter > timeindex) return hash;
 
         // Skip over chunk hash information
