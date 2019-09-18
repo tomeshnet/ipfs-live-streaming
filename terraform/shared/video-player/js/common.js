@@ -11,11 +11,11 @@ function getURLParam(key) {
   return new URLSearchParams(window.location.search).get(key);
 }
 
-var ipfs_gw = getURLParam('gw')
+var ipfs_gw = getURLParam('gw');                              // Set custom IPFS gateway
 if (getURLParam('m3u8'))
-  var m3u8_ipfs = getURLParam('m3u8')   // Set m3u8 file URL to override IPFS live stream
-var vod_ipfs = getURLParam('vod')       // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
-var start_from = getURLParam("from");   // Timecode to start video playing from
+  var m3u8_ipfs = getURLParam('m3u8') || getURLParam('ipfs'); // Set m3u8 file URL to override IPFS live stream ('ipfs' for backward compatability)
+var vod_ipfs = getURLParam('vod');                            // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
+var start_from = getURLParam("from");                         // Timecode to start video playing from
 
 // Configure default playback behaviour
 var stream_type = 'application/x-mpegURL'; // Type of video stream
@@ -30,7 +30,7 @@ if (vod_ipfs) {
   stream_type = 'video/mp4';
   stream_url_ipfs = ipfs_gateway + '/ipfs/' + vod_ipfs;
   stream_urls_http = [];
-  document.getElementById('selectingTitle').innerHTML = 'Select Recorded Stream Source';
+  document.getElementById('selectingTitle').innerHTML = 'Select recorded stream source';
 }
 
 // If start_from is not a number it's probably an IPFS hash so calculate to correct start_from
@@ -160,7 +160,7 @@ live.on('loadeddata', function(event) {
 
 var refreshButton = document.createElement('button');
 refreshButton.className = 'button button-primary compact stream-refresh';
-refreshButton.innerHTML = 'Refresh Page and Try Again';
+refreshButton.innerHTML = 'Refresh page and try again';
 refreshButton.addEventListener('click', function() {
   window.location.reload(true);
 });
