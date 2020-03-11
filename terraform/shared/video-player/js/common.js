@@ -11,11 +11,11 @@ function getURLParam(key) {
   return new URLSearchParams(window.location.search).get(key);
 }
 
-var ipfs_gw = getURLParam('gw');                              // Set custom IPFS gateway
+var ipfs_gw = getURLParam('gw');                          // Set custom IPFS gateway
 if (getURLParam('m3u8'))
-  var m3u8_ipfs = getURLParam('m3u8') || getURLParam('ipfs'); // Set m3u8 file URL to override IPFS live stream ('ipfs' for backward compatability)
-var vod_ipfs = getURLParam('vod');                            // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
-var start_from = getURLParam("from");                         // Timecode to start video playing from
+  var m3u8_ipfs = getURLParam('m3u8');                    // Set m3u8 file URL to override IPFS live stream
+var vod_ipfs = getURLParam('vod') || getURLParam('ipfs'); // Set IPFS content hash of mp4 file to play IPFS on-demand video stream ('ipfs' for backward compatability)
+var start_from = getURLParam("from");                     // Set IPFS content hash or timecode to start video playback from
 
 // Configure default playback behaviour
 var stream_type = 'application/x-mpegURL'; // Type of video stream
