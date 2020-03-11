@@ -264,7 +264,7 @@ mkdir -p /var/www/html/ || true
 cp -r /tmp/video-player/* /var/www/html/
 
 # Configure video player
-sed -i "s#__IPFS_GATEWAY_SELF__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
+sed -i "s#__IPFS_GATEWAY__#https://ipfs-gateway.${DOMAIN_NAME}#g" /var/www/html/js/common.js
 sed -i "s#__IPFS_ID_ORIGIN__#${IPFS_ID}#g" /var/www/html/js/common.js
 sed -i "s#__M3U8_HTTP_URLS__#${M3U8_HTTP_URLS}#g" /var/www/html/js/common.js
 

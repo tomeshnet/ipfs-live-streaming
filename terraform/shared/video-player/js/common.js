@@ -1,9 +1,9 @@
 // IPFS config
-var ipfs_gateway = '__IPFS_GATEWAY_SELF__'; // IPFS gateway
+var ipfs_gateway = '__IPFS_GATEWAY__'; // IPFS gateway
 
 // Live stream config
 var m3u8_ipfs = 'live.m3u8';                                          // HTTP or local path to m3u8 file containing IPFS content
-//m3u8_ipfs = '__IPFS_GATEWAY_SELF__/ipns/__IPFS_ID_ORIGIN__';          // IPNS path to m3u8 file containing IPFS content (uncomment to enable)
+//m3u8_ipfs = '__IPFS_GATEWAY__/ipns/__IPFS_ID_ORIGIN__';               // IPNS path to m3u8 file containing IPFS content (uncomment to enable)
 var m3u8_http_urls = [__M3U8_HTTP_URLS__];                            // HTTP or local paths to m3u8 file containing HTTP content (optional)
 
 // Process URL params
