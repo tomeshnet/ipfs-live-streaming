@@ -6,6 +6,10 @@ var m3u8_ipfs = 'live.m3u8';                                          // HTTP or
 //m3u8_ipfs = '__IPFS_GATEWAY__/ipns/__IPFS_ID_ORIGIN__';               // IPNS path to m3u8 file containing IPFS content (uncomment to enable)
 var m3u8_http_urls = [__M3U8_HTTP_URLS__];                            // HTTP or local paths to m3u8 file containing HTTP content (optional)
 
+// Video sharing links config 
+var date = new Date().toLocaleDateString("en-CA", {timeZone: "America/Toronto"}); // Current date (default to American/Toronto)
+var rootURL = window.location.href.split('?')[0];                                 // Root URL used in sharing links
+
 // Process URL params
 function getURLParam(key) {
   return new URLSearchParams(window.location.search).get(key);
@@ -192,7 +196,7 @@ live.on('loadeddata', function(event) {
 });
 
 var refreshButton = document.createElement('button');
-refreshButton.className = 'button button-primary compact stream-refresh';
+refreshButton.className = 'stream-refresh';
 refreshButton.innerHTML = 'Refresh page and try again';
 refreshButton.addEventListener('click', function() {
   window.location.reload(true);
@@ -208,4 +212,44 @@ live.on('error', function(event) {
 
 if (!stream_urls_http || !Array.isArray(stream_urls_http) || (stream_urls_http.length === 0)) {
   document.querySelector('.http-stream').setAttribute('disabled', 'disabled');
+}
+
+// Video sharing links
+function getShareLink(key) {
+  var m3u8 = getURLParam('m3u8');
+  if (!m3u8) {
+    m3u8 = `live-${date}.m3u8`;
+  }
+  var bookmark = getHashFromTime(live.currentTime());
+  return `${rootURL}?m3u8=${m3u8}&from=${bookmark}`;
+}
+
+if (getURLParam('m3u8')) {
+  setInterval(function () {
+    var link = document.getElementById('link');
+    link.value = getShareLink();
+  }, 5000);
+}
+
+var shareTweet = document.querySelector('.share-tweet');
+var shareLink = document.querySelector('.share-link');
+
+if (shareTweet) {
+  shareTweet.addEventListener('click', function() {
+    var link = document.getElementById('link');
+    link.value = getShareLink();
+    const tweetURL = link.value;
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(tweetURL)}`);
+  });
+}
+
+if (shareLink) {
+  shareLink.addEventListener('click', function() {
+    var link = document.getElementById('link');
+    link.value = getShareLink();
+    link.select();
+    link.setSelectionRange(0, 99999); // For mobile devices
+    document.execCommand('copy');
+    alert('Link copied to clipboard');
+  });
 }
