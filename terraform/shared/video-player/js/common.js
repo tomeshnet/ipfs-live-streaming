@@ -131,6 +131,14 @@ function ipfsStream() {
     type: stream_type
   });
   loadStream();
+
+  // Start playback from timecode if exists
+  if (vod_ipfs && start_from && +start_from == start_from) {
+    setTimeout(function() {
+      live.currentTime(start_from);
+    }, 1);
+  }
+
   videojs.Hls.xhr.beforeRequest = function(options) {
 
     // When .m3u8 is loaded, start playback and transition to streamState = 1
@@ -216,6 +224,9 @@ if (!stream_urls_http || !Array.isArray(stream_urls_http) || (stream_urls_http.l
 
 // Video sharing links
 function getShareLink(key) {
+  if (vod_ipfs) {
+    return `${rootURL}?vod=${vod_ipfs}&from=${live.currentTime()}`;
+  }
   var m3u8 = getURLParam('m3u8');
   if (!m3u8) {
     m3u8 = `live-${date}.m3u8`;
@@ -224,12 +235,10 @@ function getShareLink(key) {
   return `${rootURL}?m3u8=${m3u8}&from=${bookmark}`;
 }
 
-if (getURLParam('m3u8')) {
-  setInterval(function () {
-    var link = document.getElementById('link');
-    link.value = getShareLink();
-  }, 5000);
-}
+setInterval(function () {
+  var link = document.getElementById('link');
+  link.value = getShareLink();
+}, 5000);
 
 var shareTweet = document.querySelector('.share-tweet');
 var shareLink = document.querySelector('.share-link');

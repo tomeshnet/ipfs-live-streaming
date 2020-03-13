@@ -247,6 +247,10 @@ button.button-primary:focus {
   margin-top: 1em;
 }
 
+.share-container {
+  z-index: 5;
+}
+
 #loadingTitle {
   font-weight: normal;
   margin-top: 0;

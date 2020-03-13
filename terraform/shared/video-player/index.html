@@ -7,6 +7,12 @@
     <link href="css/common.css" rel="stylesheet" type="text/css">
   </head>
   <body>
+    <div class="share-container absolute w-100 flex">
+      <button class="share-tweet compact">Share on Twitter</button>
+      <button class="share-link compact">Share link</button>
+      <input type="text" class="compact" style="flex:1; text-overflow: ellipsis" id="link" />
+    </div>
+
     <div class="stream-container">
       <video id="live" class="video-js vjs-default-skin vjs-big-play-centered vjs-fill" controls preload autoplay loop>
         <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video</p>
@@ -40,11 +46,6 @@
           <img class="loader-animation" src="graphics/loader-animation.svg" alt="Animated loading graphic" />
           <h3 id="loadingTitle" class="mt-0">Locating stream...</h3>
           <div class="stream-message" id="msg"></div>
-        </div>
-        <div class="share-container w-100 mt-1 flex">
-          <button class="share-tweet mr-1 compact">Share on Twitter</button>
-          <button class="share-link mr-1 compact">Share link</button>
-          <input type="text" class="compact" style="flex:1; text-overflow: ellipsis" id="link" />
         </div>
       </div>
     </div>
