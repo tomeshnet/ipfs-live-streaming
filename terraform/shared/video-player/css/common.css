@@ -10,7 +10,7 @@ html, body {
 
 body {
   background-color: #000000;
-  font: normal 18px/1.4 "Cotham Sans", Helvetica, Arial, sans-serif;
+  font: normal 18px/1.4 nimbus sans l,helvetica neue,arial,sans-serif;
 }
 
 h2 {
@@ -22,6 +22,140 @@ h2 {
 p {
   margin-top: 0;
   margin-bottom: 1em;
+}
+
+/* Variables */
+
+.color-accent {
+  color: #ff3f00;
+}
+
+.bg-white {
+  background: #ffffff;
+}
+
+/* Layout */
+
+.fixed {
+  position: fixed;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.none {
+  display: none;
+}
+
+.block {
+  display: block;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-direction-column {
+  flex-direction: column;
+}
+
+.flex-align-baseline {
+  align-items: baseline;
+}
+
+.flex-align-center {
+  align-items: center;
+}
+
+.flex-justify-center {
+  justify-content: center;
+}
+
+.flex-justify-space-between {
+  justify-content: space-between;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.pt-s {
+  padding-top: 1em;
+}
+
+.mt-0 {
+  margin-top: 0;
+}
+
+.mt-1 {
+  margin-top: 1em;
+}
+
+.mr-1 {
+  margin-right: 1em;
+}
+
+/* Buttons */
+
+.button,
+button {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  padding: 1em 2em 1em;
+  color: #000000;
+  text-align: center;
+  font-family: nimbus sans l,helvetica neue,arial,sans-serif;
+  font-weight: bold;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: #ffe100;
+  border: 0;
+  cursor: pointer;
+  line-height: 1em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 150ms ease-in-out, border-color 150ms ease-in-out, color 150ms ease-in-out;
+}
+
+.button:hover,
+button:hover,
+.button:focus,
+button:focus {
+  color: #ffffff;
+  background-color: #ff3f00;
+  border-color: #ff3f00;
+  text-decoration: none;
+}
+
+.button.button-primary,
+button.button-primary {
+  border: 7px solid #ff3f00;
+  background-color: $yellow;
+}
+
+.button.button-primary:hover,
+button.button-primary:hover,
+.button.button-primary:focus,
+button.button-primary:focus {
+  color: #ffffff;
+  background-color: #ff3f00;
+  border-color: #ff3f00;
+}
+
+.compact {
+  font-size: 0.85em;
+  line-height: 1.5em;
+  padding: 5px 10px;
 }
 
 /* Live Stream Container */
@@ -61,7 +195,7 @@ p {
 .stream-option:hover .button-label, .stream-option:focus .button-label {
   text-decoration: underline;
 }
-.stream-option svg {
+.stream-option .stream-option-graphic {
   width: 130px;
   pointer-events: none;
 }
@@ -72,7 +206,7 @@ p {
 .stream-option[disabled]:hover .button-label, .stream-option[disabled]:focus .button-label {
     text-decoration: none;
 }
-.stream-option[disabled] svg {
+.stream-option[disabled] .stream-option-graphic {
   -webkit-filter: grayscale(100%);
   filter: grayscale(100%);
 }

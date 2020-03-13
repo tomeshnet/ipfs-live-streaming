@@ -196,7 +196,7 @@ live.on('loadeddata', function(event) {
 });
 
 var refreshButton = document.createElement('button');
-refreshButton.className = 'stream-refresh';
+refreshButton.className = 'button button-primary compact stream-refresh';
 refreshButton.innerHTML = 'Refresh page and try again';
 refreshButton.addEventListener('click', function() {
   window.location.reload(true);
