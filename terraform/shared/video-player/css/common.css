@@ -140,7 +140,7 @@ button:focus {
 .button.button-primary,
 button.button-primary {
   border: 7px solid #ff3f00;
-  background-color: $yellow;
+  background-color: #ffe100;
 }
 
 .button.button-primary:hover,
