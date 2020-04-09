@@ -1,21 +1,25 @@
 // IPFS config
-var ipfs_gateway = '__IPFS_GATEWAY_SELF__'; // IPFS gateway
+var ipfs_gateway = '__IPFS_GATEWAY__'; // IPFS gateway
 
 // Live stream config
 var m3u8_ipfs = 'live.m3u8';                                          // HTTP or local path to m3u8 file containing IPFS content
-// var m3u8_ipfs = '__IPFS_GATEWAY_ORIGIN__/ipns/__IPFS_ID_ORIGIN__'; // IPNS path to m3u8 file containing IPFS content (uncomment to enable)
+//m3u8_ipfs = '__IPFS_GATEWAY__/ipns/__IPFS_ID_ORIGIN__';               // IPNS path to m3u8 file containing IPFS content (uncomment to enable)
 var m3u8_http_urls = [__M3U8_HTTP_URLS__];                            // HTTP or local paths to m3u8 file containing HTTP content (optional)
+
+// Video sharing links config 
+var date = new Date().toLocaleDateString("en-CA", {timeZone: "America/Toronto"}); // Current date (default to American/Toronto)
+var rootURL = window.location.href.split('?')[0];                                 // Root URL used in sharing links
 
 // Process URL params
 function getURLParam(key) {
   return new URLSearchParams(window.location.search).get(key);
 }
 
-var ipfs_gw = getURLParam('gw');                              // Set custom IPFS gateway
+var ipfs_gw = getURLParam('gw');                          // Set custom IPFS gateway
 if (getURLParam('m3u8'))
-  var m3u8_ipfs = getURLParam('m3u8') || getURLParam('ipfs'); // Set m3u8 file URL to override IPFS live stream ('ipfs' for backward compatability)
-var vod_ipfs = getURLParam('vod');                            // Set IPFS content hash of mp4 file to play IPFS on-demand video stream
-var start_from = getURLParam("from");                         // Timecode to start video playing from
+  var m3u8_ipfs = getURLParam('m3u8');                    // Set m3u8 file URL to override IPFS live stream
+var vod_ipfs = getURLParam('vod') || getURLParam('ipfs'); // Set IPFS content hash of mp4 file to play IPFS on-demand video stream ('ipfs' for backward compatability)
+var start_from = getURLParam("from");                     // Set IPFS content hash or timecode to start video playback from
 
 // Configure default playback behaviour
 var stream_type = 'application/x-mpegURL'; // Type of video stream
@@ -127,6 +131,14 @@ function ipfsStream() {
     type: stream_type
   });
   loadStream();
+
+  // Start playback from timecode if exists
+  if (vod_ipfs && start_from && +start_from == start_from) {
+    setTimeout(function() {
+      live.currentTime(start_from);
+    }, 1);
+  }
+
   videojs.Hls.xhr.beforeRequest = function(options) {
 
     // When .m3u8 is loaded, start playback and transition to streamState = 1
@@ -208,4 +220,45 @@ live.on('error', function(event) {
 
 if (!stream_urls_http || !Array.isArray(stream_urls_http) || (stream_urls_http.length === 0)) {
   document.querySelector('.http-stream').setAttribute('disabled', 'disabled');
+}
+
+// Video sharing links
+function getShareLink(key) {
+  if (vod_ipfs) {
+    return `${rootURL}?vod=${vod_ipfs}&from=${live.currentTime()}`;
+  }
+  var m3u8 = getURLParam('m3u8');
+  if (!m3u8) {
+    m3u8 = `live-${date}.m3u8`;
+  }
+  var bookmark = getHashFromTime(live.currentTime());
+  return `${rootURL}?m3u8=${m3u8}&from=${bookmark}`;
+}
+
+setInterval(function () {
+  var link = document.getElementById('link');
+  link.value = getShareLink();
+}, 5000);
+
+var shareTweet = document.querySelector('.share-tweet');
+var shareLink = document.querySelector('.share-link');
+
+if (shareTweet) {
+  shareTweet.addEventListener('click', function() {
+    var link = document.getElementById('link');
+    link.value = getShareLink();
+    const tweetURL = link.value;
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(tweetURL)}`);
+  });
+}
+
+if (shareLink) {
+  shareLink.addEventListener('click', function() {
+    var link = document.getElementById('link');
+    link.value = getShareLink();
+    link.select();
+    link.setSelectionRange(0, 99999); // For mobile devices
+    document.execCommand('copy');
+    alert('Link copied to clipboard');
+  });
 }

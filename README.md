@@ -247,9 +247,10 @@ The embedded video player is tested on common desktop and mobile browsers, and s
 
 | Parameter | Description                                                           |
 |:----------|:----------------------------------------------------------------------|
-| `gw`      | Set IPFS gateway URL to override playback gateway                     |
-| `live`    | Set m3u8 file URL to override IPFS live stream                        |
+| `gw`      | Set custom IPFS gateway                                               |
+| `m3u8`    | Set m3u8 file URL to override IPFS live stream                        |
 | `vod`     | Set IPFS content hash of mp4 file to play IPFS on-demand video stream |
+| `from`    | Set IPFS content hash or timecode to start video playback from        |
 
 ## Attribution
 
